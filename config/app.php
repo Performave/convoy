@@ -1,10 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\ServiceProvider;
 
 return [
-
     'version' => 'canary',
 
     'aliases' => Facade::defaultAliases()->merge([
@@ -13,5 +11,4 @@ return [
         'LogBatch' => App\Facades\LogBatch::class,
         'LogTarget' => App\Facades\LogTarget::class,
     ])->toArray(),
-
 ];
