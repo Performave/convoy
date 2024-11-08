@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\AddressPools;
 
 use App\Enums\Network\AddressType;
 use App\Exceptions\Repository\Proxmox\ProxmoxConnectionException;
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\AddressPools\Addresses\StoreAddressRequest;
 use App\Http\Requests\Admin\AddressPools\Addresses\UpdateAddressRequest;
 use App\Jobs\Server\SyncNetworkSettings;
@@ -20,39 +19,38 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
-class AddressController extends ApiController
+class AddressController
 {
     public function __construct(
-        private NetworkService             $networkService,
-        private ConnectionInterface        $connection,
+        private NetworkService $networkService,
+        private ConnectionInterface $connection,
         private BulkAddressCreationService $bulkAddressCreationService,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request, AddressPool $addressPool)
     {
         $addresses = QueryBuilder::for($addressPool->addresses())
-                                 ->with('server')
-                                 ->defaultSort('-id')
-                                 ->allowedFilters(
-                                     [
-                                         AllowedFilter::exact('address'),
-                                         AllowedFilter::exact(
-                                             'type',
-                                         ),
-                                         AllowedFilter::custom(
-                                             '*',
-                                             new FiltersAddressWildcard(),
-                                         ),
-                                         AllowedFilter::exact('server_id')->nullable(),
-                                     ],
-                                 )
-                                 ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                     $request->query(),
-                                 );
+            ->with('server')
+            ->defaultSort('-id')
+            ->allowedFilters(
+                [
+                    AllowedFilter::exact('address'),
+                    AllowedFilter::exact(
+                        'type',
+                    ),
+                    AllowedFilter::custom(
+                        '*',
+                        new FiltersAddressWildcard,
+                    ),
+                    AllowedFilter::exact('server_id')->nullable(),
+                ],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($addresses, new AddressTransformer())->parseIncludes($request->include)
-                                                            ->respond();
+        return fractal($addresses, new AddressTransformer)->parseIncludes($request->include)
+            ->respond();
     }
 
     public function store(StoreAddressRequest $request, AddressPool $addressPool)
@@ -71,11 +69,11 @@ class AddressController extends ApiController
                 macAddress: $data['mac_address'],
             );
 
-            if (!is_null($request->server_id)) {
+            if (! is_null($request->server_id)) {
                 SyncNetworkSettings::dispatch($request->integer('server_id'));
             }
 
-            return $this->returnNoContent();
+            return response()->noContent();
         }
 
         /** @var Address $address */
@@ -98,8 +96,8 @@ class AddressController extends ApiController
             return $address;
         });
 
-        return fractal($address, new AddressTransformer())->parseIncludes($request->include)
-                                                          ->respond();
+        return fractal($address, new AddressTransformer)->parseIncludes($request->include)
+            ->respond();
     }
 
     public function update(
@@ -125,11 +123,11 @@ class AddressController extends ApiController
                     $this->networkService->syncSettings($address->server);
                 }
             } catch (ProxmoxConnectionException) {
-                if ($oldLinkedServer && !$address->server) {
+                if ($oldLinkedServer && ! $address->server) {
                     throw new ServiceUnavailableHttpException(
                         message: "Server {$oldLinkedServer->uuid} failed to sync network settings.",
                     );
-                } elseif (!$oldLinkedServer && $address->server) {
+                } elseif (! $oldLinkedServer && $address->server) {
                     throw new ServiceUnavailableHttpException(
                         message: "Server {$address->server->uuid} failed to sync network settings.",
                     );
@@ -143,8 +141,8 @@ class AddressController extends ApiController
             return $address;
         });
 
-        return fractal($address, new AddressTransformer())->parseIncludes($request->include)
-                                                          ->respond();
+        return fractal($address, new AddressTransformer)->parseIncludes($request->include)
+            ->respond();
     }
 
     public function destroy(AddressPool $addressPool, Address $address)
@@ -163,6 +161,6 @@ class AddressController extends ApiController
             }
         });
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

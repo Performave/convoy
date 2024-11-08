@@ -5,16 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
-        // Delete records based on conditions
-        DB::statement(
-            'DELETE FROM backups WHERE completed_at IS NOT NULL AND is_successful = 0;',
-        );
+        // Delete records based on conditions without raw SQL
+        DB::table('backups')
+            ->whereNotNull('completed_at')
+            ->where('is_successful', 0)
+            ->delete();
 
         Schema::table('backups', function (Blueprint $table) {
             $table->string('description')->nullable()->after('name');
@@ -22,31 +21,23 @@ return new class extends Migration {
 
             $table->dropSoftDeletes();
             $table->dropColumn(['is_successful', 'updated_at']);
-        });
 
-        // Modify the 'is_locked' column to be not nullable with a default of false (0)
-        DB::statement(
-            'ALTER TABLE backups MODIFY COLUMN is_locked TINYINT(1) NOT NULL DEFAULT 0 AFTER description',
-        );
+            // Explicitly define 'is_locked' attributes to prevent unintended behavior
+            $table->boolean('is_locked')->default(false)->nullable(false)->after('description')->change();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('backups', function (Blueprint $table) {
             $table->dropColumn(['description', 'errors']);
 
-            $table->boolean('is_locked')->nullable()->change();
+            // Re-apply all attributes to 'is_locked' in down migration
+            $table->boolean('is_locked')->nullable()->default(null)->after('is_successful')->change();
+
             $table->boolean('is_successful')->default(false)->after('server_id');
             $table->timestamp('updated_at')->nullable()->after('created_at');
             $table->softDeletes()->after('updated_at');
         });
-
-        // Modify the 'is_locked' column to be nullable in the down migration
-        DB::statement(
-            'ALTER TABLE backups MODIFY COLUMN is_locked TINYINT(1) NULL AFTER is_successful',
-        );
     }
 };

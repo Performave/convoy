@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Client\Servers;
 
 use App\Enums\Server\ConsoleType;
 use App\Enums\Server\PowerAction;
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Client\Servers\CreateConsoleSessionRequest;
 use App\Http\Requests\Client\Servers\SendPowerCommandRequest;
 use App\Models\Server;
@@ -13,7 +12,6 @@ use App\Repositories\Proxmox\Server\ProxmoxServerRepository;
 use App\Services\Coterm\CotermJWTService;
 use App\Services\Servers\ServerConsoleService;
 use App\Services\Servers\ServerDetailService;
-use App\Services\Servers\VncService;
 use App\Transformers\Client\ServerDetailTransformer;
 use App\Transformers\Client\ServerStateTransformer;
 use App\Transformers\Client\ServerTerminalTransformer;
@@ -21,40 +19,40 @@ use App\Transformers\Client\ServerTransformer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
+
 use function fractal;
 use function min;
 
-class ServerController extends ApiController
+class ServerController
 {
     public function __construct(
-        private CotermJWTService        $cotermJWTService,
-        private ServerConsoleService    $consoleService,
-        private ServerDetailService     $detailService,
+        private CotermJWTService $cotermJWTService,
+        private ServerConsoleService $consoleService,
+        private ServerDetailService $detailService,
         private ProxmoxServerRepository $serverRepository,
-        private ProxmoxPowerRepository  $powerRepository,
-    ) {
-    }
+        private ProxmoxPowerRepository $powerRepository,
+    ) {}
 
     public function index(Request $request)
     {
         $servers = QueryBuilder::for(Server::query())
-                               ->allowedFilters(['name'])
-                               ->paginate(min($request->query('per_page', 50), 100))
-                               ->appends($request->query());
+            ->allowedFilters(['name'])
+            ->paginate(min($request->query('per_page', 50), 100))
+            ->appends($request->query());
 
-        return fractal($servers, new ServerTransformer())->respond();
+        return fractal($servers, new ServerTransformer)->respond();
     }
 
     public function show(Server $server)
     {
-        return fractal($server, new ServerTransformer())->respond();
+        return fractal($server, new ServerTransformer)->respond();
     }
 
     public function details(Server $server)
     {
         return fractal(
             $this->detailService->getByProxmox($server),
-            new ServerDetailTransformer(),
+            new ServerDetailTransformer,
         )->respond();
     }
 
@@ -62,16 +60,16 @@ class ServerController extends ApiController
     {
         return fractal()->item(
             $this->serverRepository->setServer($server)->getState(),
-            new ServerStateTransformer(),
+            new ServerStateTransformer,
         )->respond();
     }
 
     public function updateState(Server $server, SendPowerCommandRequest $request)
     {
         $this->powerRepository->setServer($server)
-                              ->send($request->enum('state', PowerAction::class));
+            ->send($request->enum('state', PowerAction::class));
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function createConsoleSession(CreateConsoleSessionRequest $request, Server $server)
@@ -89,7 +87,7 @@ class ServerController extends ApiController
                         $request->user(),
                         $request->enum('type', ConsoleType::class),
                     )
-                                                      ->toString(),
+                        ->toString(),
                 ],
             ]);
         } else {
@@ -101,7 +99,7 @@ class ServerController extends ApiController
                 'vmid' => $server->vmid,
                 'fqdn' => $server->node->fqdn,
                 'port' => $server->node->port,
-            ], new ServerTerminalTransformer())->respond();
+            ], new ServerTerminalTransformer)->respond();
         }
     }
 }

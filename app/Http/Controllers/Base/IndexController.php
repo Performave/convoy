@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers\Base;
 
-use App\Http\Controllers\Controller;
 use Illuminate\View\Factory as ViewFactory;
 use Illuminate\View\View;
 
-class IndexController extends Controller
+class IndexController
 {
     /**
      * IndexController constructor.
      */
     public function __construct(
         protected ViewFactory $view,
-    ) {
-    }
+    ) {}
 
     /**
      * Returns listing of user's servers.

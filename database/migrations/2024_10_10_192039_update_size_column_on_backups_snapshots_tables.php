@@ -1,31 +1,30 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
-        DB::statement(
-            'ALTER TABLE backups MODIFY COLUMN size INT UNSIGNED NOT NULL;',
-        );
-        DB::statement(
-            'ALTER TABLE snapshots MODIFY COLUMN size INT UNSIGNED NOT NULL;',
-        );
+        Schema::table('backups', function (Blueprint $table) {
+            $table->unsignedInteger('size')->nullable(false)->change();
+        });
+
+        Schema::table('snapshots', function (Blueprint $table) {
+            $table->unsignedInteger('size')->nullable(false)->change();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        DB::statement(
-            'ALTER TABLE backups MODIFY COLUMN size BIGINT UNSIGNED NOT NULL DEFAULT 0;',
-        );
-        DB::statement(
-            'ALTER TABLE snapshots MODIFY COLUMN size BIGINT UNSIGNED NOT NULL DEFAULT 0;',
-        );
+        Schema::table('backups', function (Blueprint $table) {
+            $table->unsignedBigInteger('size')->default(0)->nullable(false)->change();
+        });
+
+        Schema::table('snapshots', function (Blueprint $table) {
+            $table->unsignedBigInteger('size')->default(0)->nullable(false)->change();
+        });
     }
 };

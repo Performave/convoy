@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Carbon\CarbonImmutable;
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Users\StoreUserRequest;
 use App\Http\Requests\Admin\Users\UpdateUserRequest;
 use App\Models\Filters\FiltersUserWildcard;
-use App\Models\SSOToken;
 use App\Models\User;
 use App\Services\Api\JWTService;
 use App\Transformers\Admin\UserTransformer;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -18,33 +16,31 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class UserController extends ApiController
+class UserController
 {
-    public function __construct(private JWTService $JWTService)
-    {
-    }
+    public function __construct(private JWTService $JWTService) {}
 
     public function index(Request $request)
     {
         $users = QueryBuilder::for(User::query())
-                             ->withCount(['servers'])
-                             ->allowedFilters(
-                                 [AllowedFilter::exact('id'), 'name', AllowedFilter::exact(
-                                     'email',
-                                 ), AllowedFilter::custom('*', new FiltersUserWildcard())],
-                             )
-                             ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                 $request->query(),
-                             );
+            ->withCount(['servers'])
+            ->allowedFilters(
+                [AllowedFilter::exact('id'), 'name', AllowedFilter::exact(
+                    'email',
+                ), AllowedFilter::custom('*', new FiltersUserWildcard)],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($users, new UserTransformer())->respond();
+        return fractal($users, new UserTransformer)->respond();
     }
 
     public function show(User $user)
     {
         $user->loadCount(['servers']);
 
-        return fractal($user, new UserTransformer())->respond();
+        return fractal($user, new UserTransformer)->respond();
     }
 
     public function store(StoreUserRequest $request)
@@ -56,7 +52,7 @@ class UserController extends ApiController
             'root_admin' => $request->root_admin,
         ])->loadCount(['servers']);
 
-        return fractal($user, new UserTransformer())->respond();
+        return fractal($user, new UserTransformer)->respond();
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -70,7 +66,7 @@ class UserController extends ApiController
 
         $user->loadCount(['servers']);
 
-        return fractal($user, new UserTransformer())->respond();
+        return fractal($user, new UserTransformer)->respond();
     }
 
     public function destroy(User $user)
@@ -87,7 +83,7 @@ class UserController extends ApiController
 
         $user->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function getSSOToken(User $user)

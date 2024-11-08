@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Nodes;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Nodes\StoreNodeRequest;
 use App\Http\Requests\Admin\Nodes\UpdateNodeRequest;
 use App\Models\Filters\FiltersNodeWildcard;
@@ -13,27 +12,27 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class NodeController extends ApiController
+class NodeController
 {
     public function index(Request $request)
     {
         $nodes = QueryBuilder::for(Node::query())
-                             ->withCount(['servers'])
-                             ->allowedFilters(
-                                 [AllowedFilter::exact('id'), 'name', 'fqdn', AllowedFilter::exact(
-                                     'location_id',
-                                 ), AllowedFilter::exact(
-                                     'coterm_id',
-                                 )->nullable(), AllowedFilter::custom(
-                                     '*',
-                                     new FiltersNodeWildcard(),
-                                 )],
-                             )
-                             ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                 $request->query(),
-                             );
+            ->withCount(['servers'])
+            ->allowedFilters(
+                [AllowedFilter::exact('id'), 'name', 'fqdn', AllowedFilter::exact(
+                    'location_id',
+                ), AllowedFilter::exact(
+                    'coterm_id',
+                )->nullable(), AllowedFilter::custom(
+                    '*',
+                    new FiltersNodeWildcard,
+                )],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($nodes, new NodeTransformer())->respond();
+        return fractal($nodes, new NodeTransformer)->respond();
     }
 
     public function show(Node $node)
@@ -42,21 +41,21 @@ class NodeController extends ApiController
 
         $node->loadCount('servers');
 
-        return fractal($node, new NodeTransformer())->respond();
+        return fractal($node, new NodeTransformer)->respond();
     }
 
     public function store(StoreNodeRequest $request)
     {
         $node = Node::create($request->validated());
 
-        return fractal($node, new NodeTransformer())->respond();
+        return fractal($node, new NodeTransformer)->respond();
     }
 
     public function update(UpdateNodeRequest $request, Node $node)
     {
         $node->update($request->validated());
 
-        return fractal($node, new NodeTransformer())->respond();
+        return fractal($node, new NodeTransformer)->respond();
     }
 
     public function destroy(Node $node)
@@ -71,6 +70,6 @@ class NodeController extends ApiController
 
         $node->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

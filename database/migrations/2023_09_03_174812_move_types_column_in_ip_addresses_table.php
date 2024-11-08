@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE ip_addresses MODIFY COLUMN type varchar(255) AFTER server_id');
+        Schema::table('ip_addresses', function (Blueprint $table) {
+            // Modify the 'type' column to be after 'server_id' with all necessary attributes
+            $table->string('type', 255)->after('server_id')->change();
+        });
     }
 
     /**
@@ -19,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE ip_addresses MODIFY COLUMN type varchar(255) AFTER mac_address');
+        Schema::table('ip_addresses', function (Blueprint $table) {
+            // Move the 'type' column to be after 'mac_address' with all necessary attributes
+            $table->string('type', 255)->after('mac_address')->change();
+        });
     }
 };

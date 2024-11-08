@@ -1,55 +1,59 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Create The Application
-|--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel application instance
-| which serves as the "glue" for all the components of Laravel, and is
-| the IoC container for the system binding all of the various parts.
-|
-*/
+use App\Http\Middleware\AdminAuthenticate;
+use App\Http\Middleware\Coterm\CotermAuthenticate;
+use App\Providers\AppServiceProvider;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
 
-$app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__),
-);
+return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders()
+    ->withRouting(
+        commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
+        health: '/up',
+        then: function () {
+            Route::middleware('web')->group(function () {
+                Route::middleware('guest')->group(base_path('routes/auth.php'));
 
-/*
-|--------------------------------------------------------------------------
-| Bind Important Interfaces
-|--------------------------------------------------------------------------
-|
-| Next, we need to bind some important interfaces into the container so
-| we will be able to resolve them when needed. The kernels serve the
-| incoming requests to this application from both the web and CLI.
-|
-*/
+                Route::middleware(['auth.session'])
+                     ->group(base_path('routes/base.php'));
 
-$app->singleton(
-    Illuminate\Contracts\Http\Kernel::class,
-    \App\Http\Kernel::class,
-);
+                Route::middleware(['auth'])->prefix('/api/client')
+                     ->as('client.')
+                     ->scopeBindings()
+                     ->group(base_path('routes/api-client.php'));
 
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    App\Console\Kernel::class,
-);
+                Route::middleware(['auth', AdminAuthenticate::class])
+                     ->prefix('/api/admin')
+                     ->as('admin.')
+                     ->scopeBindings()
+                     ->group(base_path('routes/api-admin.php'));
+            });
 
-$app->singleton(
-    Illuminate\Contracts\Debug\ExceptionHandler::class,
-    App\Exceptions\Handler::class,
-);
+            Route::middleware(['api'])->group(function () {
+                Route::middleware(['auth:sanctum'])
+                     ->prefix('/api/application')
+                     ->as('application.')
+                     ->scopeBindings()
+                     ->group(base_path('routes/api-application.php'));
 
-/*
-|--------------------------------------------------------------------------
-| Return The Application
-|--------------------------------------------------------------------------
-|
-| This script returns the application instance. The instance is given to
-| the calling script so we can separate the building of the instances
-| from the actual running of the application and sending responses.
-|
-*/
+                Route::middleware([CotermAuthenticate::class])
+                     ->prefix('/api/coterm')
+                     ->as('coterm.')
+                     ->scopeBindings()
+                     ->group(base_path('routes/api-coterm.php'));
+            });
+        }
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectUsersTo(AppServiceProvider::HOME);
 
-return $app;
+        $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();

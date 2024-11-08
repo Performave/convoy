@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Nodes;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Nodes\Templates\TemplateRequest;
 use App\Http\Requests\Admin\Nodes\Templates\UpdateTemplateOrderRequest;
 use App\Models\Node;
@@ -11,16 +10,16 @@ use App\Models\TemplateGroup;
 use App\Transformers\Admin\TemplateTransformer;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class TemplateController extends ApiController
+class TemplateController
 {
     public function index(Node $node, TemplateGroup $templateGroup)
     {
         $templates = QueryBuilder::for(Template::query())
-                                 ->where('templates.template_group_id', $templateGroup->id)
-                                 ->defaultSort('order_column')
-                                 ->get();
+            ->where('templates.template_group_id', $templateGroup->id)
+            ->defaultSort('order_column')
+            ->get();
 
-        return fractal($templates, new TemplateTransformer())->respond();
+        return fractal($templates, new TemplateTransformer)->respond();
     }
 
     public function store(TemplateRequest $request, Node $node, TemplateGroup $templateGroup)
@@ -32,7 +31,7 @@ class TemplateController extends ApiController
             ]),
         );
 
-        return fractal($template, new TemplateTransformer())->respond();
+        return fractal($template, new TemplateTransformer)->respond();
     }
 
     public function update(
@@ -43,14 +42,14 @@ class TemplateController extends ApiController
     ) {
         $template->update($request->validated());
 
-        return fractal($template, new TemplateTransformer())->respond();
+        return fractal($template, new TemplateTransformer)->respond();
     }
 
     public function destroy(Node $node, TemplateGroup $templateGroup, Template $template)
     {
         $template->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function updateOrder(
@@ -62,7 +61,7 @@ class TemplateController extends ApiController
 
         return fractal(
             $templateGroup->templates()->ordered()->get(),
-            new TemplateTransformer(),
+            new TemplateTransformer,
         )->respond();
     }
 }
