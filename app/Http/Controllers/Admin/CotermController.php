@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Coterms\DeleteCotermRequest;
 use App\Http\Requests\Admin\Coterms\StoreCotermRequest;
 use App\Http\Requests\Admin\Coterms\UpdateAttachedNodesRequest;
@@ -18,35 +17,35 @@ use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class CotermController extends ApiController
+use function response;
+
+class CotermController
 {
-    public function __construct(private CotermTokenCreationService $cotermTokenCreator)
-    {
-    }
+    public function __construct(private CotermTokenCreationService $cotermTokenCreator) {}
 
     public function index(Request $request)
     {
         $addressPools = QueryBuilder::for(Coterm::query())
-                                    ->withCount(['nodes'])
-                                    ->defaultSort('-id')
-                                    ->allowedFilters(
-                                        ['name', AllowedFilter::custom(
-                                            '*',
-                                            new FiltersCotermWildcard(),
-                                        )],
-                                    )
-                                    ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                        $request->query(),
-                                    );
+            ->withCount(['nodes'])
+            ->defaultSort('-id')
+            ->allowedFilters(
+                ['name', AllowedFilter::custom(
+                    '*',
+                    new FiltersCotermWildcard,
+                )],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($addressPools, new CotermTransformer())->respond();
+        return fractal($addressPools, new CotermTransformer)->respond();
     }
 
     public function show(Coterm $coterm)
     {
         $coterm->loadCount(['nodes']);
 
-        return fractal($coterm, new CotermTransformer())->respond();
+        return fractal($coterm, new CotermTransformer)->respond();
     }
 
     public function store(StoreCotermRequest $request)
@@ -79,23 +78,23 @@ class CotermController extends ApiController
         }
         $coterm->loadCount(['nodes']);
 
-        return fractal($coterm, new CotermTransformer())->respond();
+        return fractal($coterm, new CotermTransformer)->respond();
     }
 
     public function getAttachedNodes(Request $request, Coterm $coterm)
     {
         $nodes = QueryBuilder::for($coterm->nodes())
-                             ->withCount('servers')
-                             ->allowedFilters(
-                                 ['name', 'fqdn', AllowedFilter::exact(
-                                     'location_id',
-                                 ), AllowedFilter::custom('*', new FiltersNodeWildcard())],
-                             )
-                             ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                 $request->query(),
-                             );
+            ->withCount('servers')
+            ->allowedFilters(
+                ['name', 'fqdn', AllowedFilter::exact(
+                    'location_id',
+                ), AllowedFilter::custom('*', new FiltersNodeWildcard)],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($nodes, new NodeTransformer())->respond();
+        return fractal($nodes, new NodeTransformer)->respond();
     }
 
     public function updateAttachedNodes(UpdateAttachedNodesRequest $request, Coterm $coterm)
@@ -108,7 +107,7 @@ class CotermController extends ApiController
         );
         $coterm->loadCount(['nodes']);
 
-        return fractal($coterm, new CotermTransformer())->respond();
+        return fractal($coterm, new CotermTransformer)->respond();
     }
 
     public function resetCotermToken(Coterm $coterm)
@@ -120,13 +119,13 @@ class CotermController extends ApiController
         ]);
 
         return fractal($coterm, new CotermTransformer(includeToken: true))->parseIncludes('token')
-                                                                          ->respond();
+            ->respond();
     }
 
     public function destroy(DeleteCotermRequest $request, Coterm $coterm)
     {
         $coterm->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

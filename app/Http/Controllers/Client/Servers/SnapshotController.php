@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Client\Servers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Repositories\Eloquent\SnapshotRepository;
 
-class SnapshotController extends Controller
+class SnapshotController
 {
-    public function __construct(private SnapshotRepository $repository)
-    {
-    }
+    public function __construct(private SnapshotRepository $repository) {}
 
     public function index(Server $server)
     {

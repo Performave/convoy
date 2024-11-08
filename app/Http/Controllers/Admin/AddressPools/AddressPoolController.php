@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\AddressPools;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\AddressPools\StoreAddressPoolRequest;
 use App\Http\Requests\Admin\AddressPools\UpdateAddressPoolRequest;
 use App\Models\AddressPool;
@@ -15,47 +14,47 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class AddressPoolController extends ApiController
+class AddressPoolController
 {
     public function index(Request $request)
     {
         $addressPools = QueryBuilder::for(AddressPool::query())
-                                    ->withCount(['addresses', 'nodes'])
-                                    ->defaultSort('-id')
-                                    ->allowedFilters(
-                                        ['name', AllowedFilter::custom(
-                                            '*',
-                                            new FiltersAddressPoolWildcard(),
-                                        )],
-                                    )
-                                    ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                        $request->query(),
-                                    );
+            ->withCount(['addresses', 'nodes'])
+            ->defaultSort('-id')
+            ->allowedFilters(
+                ['name', AllowedFilter::custom(
+                    '*',
+                    new FiltersAddressPoolWildcard,
+                )],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($addressPools, new AddressPoolTransformer())->respond();
+        return fractal($addressPools, new AddressPoolTransformer)->respond();
     }
 
     public function show(AddressPool $addressPool)
     {
         $addressPool->loadCount(['addresses', 'nodes']);
 
-        return fractal($addressPool, new AddressPoolTransformer())->respond();
+        return fractal($addressPool, new AddressPoolTransformer)->respond();
     }
 
     public function getAttachedNodes(Request $request, AddressPool $addressPool)
     {
         $nodes = QueryBuilder::for($addressPool->nodes())
-                             ->withCount('servers')
-                             ->allowedFilters(
-                                 ['name', 'fqdn', AllowedFilter::exact(
-                                     'location_id',
-                                 ), AllowedFilter::custom('*', new FiltersNodeWildcard())],
-                             )
-                             ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                 $request->query(),
-                             );
+            ->withCount('servers')
+            ->allowedFilters(
+                ['name', 'fqdn', AllowedFilter::exact(
+                    'location_id',
+                ), AllowedFilter::custom('*', new FiltersNodeWildcard)],
+            )
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($nodes, new NodeTransformer())->respond();
+        return fractal($nodes, new NodeTransformer)->respond();
     }
 
     public function store(StoreAddressPoolRequest $request)
@@ -64,7 +63,7 @@ class AddressPoolController extends ApiController
         $pool->nodes()->attach($request->node_ids);
         $pool->loadCount(['addresses', 'nodes']);
 
-        return fractal($pool, new AddressPoolTransformer())->respond();
+        return fractal($pool, new AddressPoolTransformer)->respond();
     }
 
     public function update(UpdateAddressPoolRequest $request, AddressPool $addressPool)
@@ -73,7 +72,7 @@ class AddressPoolController extends ApiController
         $addressPool->nodes()->sync($request->node_ids);
         $addressPool->loadCount(['addresses', 'nodes']);
 
-        return fractal($addressPool, new AddressPoolTransformer())->respond();
+        return fractal($addressPool, new AddressPoolTransformer)->respond();
     }
 
     public function destroy(AddressPool $addressPool)
@@ -88,6 +87,6 @@ class AddressPoolController extends ApiController
 
         $addressPool->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

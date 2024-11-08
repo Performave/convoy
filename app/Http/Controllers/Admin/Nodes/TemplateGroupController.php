@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Nodes;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Nodes\TemplateGroups\TemplateGroupRequest;
 use App\Http\Requests\Admin\Nodes\TemplateGroups\UpdateGroupOrderRequest;
 use App\Models\Node;
@@ -10,20 +9,20 @@ use App\Models\TemplateGroup;
 use App\Transformers\Admin\TemplateGroupTransformer;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class TemplateGroupController extends ApiController
+class TemplateGroupController
 {
     public function index(Node $node)
     {
         $templateGroups = QueryBuilder::for(TemplateGroup::query())
-                                      ->where('template_groups.node_id', $node->id)
-                                      ->defaultSort('order_column')
-                                      ->with(['templates' => function ($query) {
-                                          $query->orderBy('order_column');
-                                      }])
-                                      ->allowedFilters(['name'])
-                                      ->get();
+            ->where('template_groups.node_id', $node->id)
+            ->defaultSort('order_column')
+            ->with(['templates' => function ($query) {
+                $query->orderBy('order_column');
+            }])
+            ->allowedFilters(['name'])
+            ->get();
 
-        return fractal($templateGroups, new TemplateGroupTransformer())->parseIncludes(
+        return fractal($templateGroups, new TemplateGroupTransformer)->parseIncludes(
             ['templates'],
         )->respond();
     }
@@ -34,7 +33,7 @@ class TemplateGroupController extends ApiController
 
         return fractal(
             $node->templateGroups()->with('templates')->ordered()->get(),
-            new TemplateGroupTransformer(),
+            new TemplateGroupTransformer,
         )->parseIncludes(['templates'])->respond();
     }
 
@@ -46,20 +45,20 @@ class TemplateGroupController extends ApiController
             ]),
         );
 
-        return fractal($templateGroup, new TemplateGroupTransformer())->respond();
+        return fractal($templateGroup, new TemplateGroupTransformer)->respond();
     }
 
     public function update(TemplateGroupRequest $request, Node $node, TemplateGroup $templateGroup)
     {
         $templateGroup->update($request->validated());
 
-        return fractal($templateGroup, new TemplateGroupTransformer())->respond();
+        return fractal($templateGroup, new TemplateGroupTransformer)->respond();
     }
 
     public function destroy(Node $node, TemplateGroup $templateGroup)
     {
         $templateGroup->delete();
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

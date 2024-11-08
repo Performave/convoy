@@ -6,7 +6,6 @@ use App\Data\Server\Deployments\ServerDeploymentData;
 use App\Data\Server\Proxmox\Config\DiskData;
 use App\Enums\Server\AuthenticationType;
 use App\Enums\Server\Status;
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Client\Servers\Settings\MountMediaRequest;
 use App\Http\Requests\Client\Servers\Settings\ReinstallServerRequest;
 use App\Http\Requests\Client\Servers\Settings\RenameServerRequest;
@@ -31,7 +30,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class SettingsController extends ApiController
+class SettingsController
 {
     public function __construct(
         private ServerAuthService $authService,
@@ -39,8 +38,7 @@ class SettingsController extends ApiController
         private CloudinitService $cloudinitService,
         private ServerBuildDispatchService $buildDispatchService,
         private AllocationService $allocationService,
-    ) {
-    }
+    ) {}
 
     public function rename(RenameServerRequest $request, Server $server)
     {
@@ -50,36 +48,36 @@ class SettingsController extends ApiController
             $server->update($request->validated());
         });
 
-        return fractal($server, new RenamedServerTransformer())->respond();
+        return fractal($server, new RenamedServerTransformer)->respond();
     }
 
     public function getTemplateGroups(Request $request, Server $server)
     {
         $templateGroups = QueryBuilder::for(TemplateGroup::query())
-                                      ->defaultSort('order_column')
-                                      ->allowedFilters(['name']);
+            ->defaultSort('order_column')
+            ->allowedFilters(['name']);
 
         if (! $request->user()->root_admin) {
             $templateGroups = $templateGroups->where(
                 [['template_groups.hidden', '=', false], ['template_groups.node_id', '=', $server->node->id]],
             )
-                                             ->with(['templates' => function ($query) {
-                                                 $query->where('hidden', '=', false)->orderBy(
-                                                     'order_column',
-                                                 );
-                                             }])->get();
+                ->with(['templates' => function ($query) {
+                    $query->where('hidden', '=', false)->orderBy(
+                        'order_column',
+                    );
+                }])->get();
         } else {
             $templateGroups = $templateGroups->where(
                 'template_groups.node_id',
                 '=',
                 $server->node->id,
             )
-                                             ->with(['templates' => function ($query) {
-                                                 $query->orderBy('order_column');
-                                             }])->get();
+                ->with(['templates' => function ($query) {
+                    $query->orderBy('order_column');
+                }])->get();
         }
 
-        return fractal($templateGroups, new TemplateGroupTransformer())->respond();
+        return fractal($templateGroups, new TemplateGroupTransformer)->respond();
     }
 
     public function reinstall(ReinstallServerRequest $request, Server $server)
@@ -98,7 +96,7 @@ class SettingsController extends ApiController
             $this->buildDispatchService->rebuild($deployment);
         });
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function getBootOrder(Server $server)
@@ -114,16 +112,16 @@ class SettingsController extends ApiController
         }
 
         return fractal()->item([
-            'unused_devices' => DiskData::collection($unconfiguredDevices),
+            'unused_devices' => DiskData::collect($unconfiguredDevices),
             'boot_order' => $configuredDevices,
-        ], new ServerBootOrderTransformer())->respond();
+        ], new ServerBootOrderTransformer)->respond();
     }
 
     public function updateBootOrder(UpdateBootOrderRequest $request, Server $server)
     {
         $this->allocationService->setBootOrder($server, $request->order);
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function getMedia(Request $request, Server $server)
@@ -151,28 +149,28 @@ class SettingsController extends ApiController
             }
         }, $media);
 
-        return fractal($media, new MediaTransformer())->respond();
+        return fractal($media, new MediaTransformer)->respond();
     }
 
     public function mountMedia(MountMediaRequest $request, Server $server, ISO $iso)
     {
         $this->allocationService->mountIso($server, $iso);
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function unmountMedia(Server $server, ISO $iso)
     {
         $this->allocationService->unmountIso($server, $iso);
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function getNetworkSettings(Server $server)
     {
         return fractal()->item([
             'nameservers' => $this->cloudinitService->getNameservers($server),
-        ], new ServerNetworkTransformer())->respond();
+        ], new ServerNetworkTransformer)->respond();
     }
 
     public function updateNetworkSettings(UpdateNetworkRequest $request, Server $server)
@@ -181,14 +179,14 @@ class SettingsController extends ApiController
 
         return fractal()->item([
             'nameservers' => $this->cloudinitService->getNameservers($server),
-        ], new ServerNetworkTransformer())->respond();
+        ], new ServerNetworkTransformer)->respond();
     }
 
     public function getAuthSettings(Server $server)
     {
         return fractal()->item([
             'ssh_keys' => $this->authService->getSSHKeys($server),
-        ], new ServerSecurityTransformer())->respond();
+        ], new ServerSecurityTransformer)->respond();
     }
 
     public function updateAuthSettings(UpdateAuthSettingsRequest $request, Server $server)
@@ -199,6 +197,6 @@ class SettingsController extends ApiController
             $this->authService->updatePassword($server, $request->password);
         }
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 }

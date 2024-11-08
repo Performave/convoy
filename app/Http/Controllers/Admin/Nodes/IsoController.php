@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Nodes;
 
 use App\Data\Helpers\ChecksumData;
 use App\Enums\Helpers\ChecksumAlgorithm;
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Admin\Nodes\Isos\StoreIsoRequest;
 use App\Http\Requests\Admin\Nodes\Isos\UpdateIsoRequest;
 use App\Models\ISO;
@@ -17,24 +16,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class IsoController extends ApiController
+class IsoController
 {
     public function __construct(
         private IsoService $isoService,
         private ProxmoxStorageRepository $repository,
-    ) {
-    }
+    ) {}
 
     public function index(Node $node, Request $request)
     {
         $isos = QueryBuilder::for(ISO::query())
-                            ->where('iso_library.node_id', $node->id)
-                            ->allowedFilters(['name'])
-                            ->paginate(min($request->query('per_page', 50), 100))->appends(
-                                $request->query(),
-                            );
+            ->where('iso_library.node_id', $node->id)
+            ->allowedFilters(['name'])
+            ->paginate(min($request->query('per_page', 50), 100))->appends(
+                $request->query(),
+            );
 
-        return fractal($isos, new IsoTransformer())->respond();
+        return fractal($isos, new IsoTransformer)->respond();
     }
 
     public function store(StoreIsoRequest $request, Node $node)
@@ -68,21 +66,21 @@ class IsoController extends ApiController
             ]);
         }
 
-        return fractal($iso, new IsoTransformer())->respond();
+        return fractal($iso, new IsoTransformer)->respond();
     }
 
     public function update(UpdateIsoRequest $request, Node $node, ISO $iso)
     {
         $iso->update($request->validated());
 
-        return fractal($iso, new IsoTransformer())->respond();
+        return fractal($iso, new IsoTransformer)->respond();
     }
 
     public function destroy(Node $node, ISO $iso)
     {
         $this->isoService->delete($node, $iso);
 
-        return $this->returnNoContent();
+        return response()->noContent();
     }
 
     public function queryLink(Request $request, Node $node)
@@ -95,6 +93,6 @@ class IsoController extends ApiController
 
         $metadata = $this->repository->setNode($node)->getFileMetadata($request->link);
 
-        return fractal($metadata, new FileMetadataTransformer())->respond();
+        return fractal($metadata, new FileMetadataTransformer)->respond();
     }
 }
