@@ -31,7 +31,7 @@ class ServerSuspensionService
         ]);
 
         try {
-            $this->powerRepository->setServer($server)->send(PowerAction::KILL);
+            $this->powerRepository->setServer($server)->send($isSuspending ? PowerAction::KILL : PowerAction::START);
         } catch (Exception $exception) {
             $server->update([
                 'status' => $isSuspending ? null : Status::SUSPENDED->value,
