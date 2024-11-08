@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -12,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('nodes', function (Blueprint $table) {
-            DB::statement('ALTER TABLE nodes MODIFY COLUMN network varchar(255) AFTER backup_storage');
+            $table->string('network')->after('backup_storage')->change();
         });
     }
 
@@ -22,7 +21,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('nodes', function (Blueprint $table) {
-            DB::statement('ALTER TABLE nodes MODIFY COLUMN network varchar(255) AFTER vm_storage');
+            $table->string('network')->after('vm_storage')->change();
         });
     }
 };

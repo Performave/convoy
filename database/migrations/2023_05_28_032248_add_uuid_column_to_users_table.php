@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -15,7 +15,12 @@ return new class extends Migration {
             $table->char('uuid', 36)->nullable()->after('id');
         });
 
-        DB::statement('UPDATE users SET uuid=(select UUID())');
+        User::chunk(100, function ($users) {
+            foreach ($users as $user) {
+                $user->uuid = Str::uuid()->toString();
+                $user->save();
+            }
+        });
     }
 
     /**

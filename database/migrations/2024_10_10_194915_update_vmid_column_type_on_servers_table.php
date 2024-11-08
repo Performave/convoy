@@ -1,25 +1,22 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
-        DB::statement(
-            'ALTER TABLE servers MODIFY COLUMN vmid INT UNSIGNED NOT NULL;',
-        );
+        Schema::table('servers', function (Blueprint $table) {
+            $table->unsignedInteger('vmid')->nullable(false)->change();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        DB::statement(
-            'ALTER TABLE servers MODIFY COLUMN vmid BIGINT UNSIGNED NOT NULL;',
-        );
+        Schema::table('servers', function (Blueprint $table) {
+            $table->unsignedBigInteger('vmid')->nullable(false)->change();
+        });
     }
 };

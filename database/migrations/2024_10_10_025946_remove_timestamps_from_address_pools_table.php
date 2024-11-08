@@ -24,6 +24,6 @@ return new class extends Migration {
             $table->after('name', fn (Blueprint $table) => $table->timestamps());
         });
 
-        DB::statement('UPDATE address_pools SET created_at = NOW()');
+        DB::table('address_pools')->update(['created_at' => now()]);
     }
 };
