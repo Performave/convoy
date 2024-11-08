@@ -45,6 +45,7 @@ jobs:
           files_to_include=(
             ".editorconfig"
             ".env.example"
+            ".env.full_example"
             ".gitattributes"
             ".gitignore"
             ".prettierignore"
