@@ -11,7 +11,7 @@
     "server",
     "panel"
   ],
-  "license": "BSL",
+  "license": "proprietary",
   "require": {
     "php": "^8.2",
     "ext-gmp": "*",
