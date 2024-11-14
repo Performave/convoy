@@ -5,17 +5,13 @@ namespace App\Repositories\Proxmox\Server;
 use App\Data\Node\Access\UserCredentialsData;
 use App\Data\Server\Proxmox\Console\NoVncCredentialsData;
 use App\Data\Server\Proxmox\Console\XTermCredentialsData;
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
 use GuzzleHttp\Cookie\CookieJar;
-use Webmozart\Assert\Assert;
 
 class ProxmoxConsoleRepository extends ProxmoxRepository
 {
     public function createNoVncCredentials(UserCredentialsData $credentials): NoVncCredentialsData
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
         $response = $this->getHttpClientWithParams(shouldAuthorize: false)
             ->withHeader('CSRFPreventionToken', $credentials->csrf_token)
             ->withOptions([

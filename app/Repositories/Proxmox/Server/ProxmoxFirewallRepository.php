@@ -2,9 +2,7 @@
 
 namespace App\Repositories\Proxmox\Server;
 
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxFirewallRepository extends ProxmoxRepository
 {
@@ -19,8 +17,6 @@ class ProxmoxFirewallRepository extends ProxmoxRepository
 
     public function getIpsets()
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
         $response = $this->getHttpClientWithParams()
             ->get('/api2/json/nodes/{node}/qemu/{server}/firewall/ipset')
             ->json();

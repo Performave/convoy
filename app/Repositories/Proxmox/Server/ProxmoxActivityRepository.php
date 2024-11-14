@@ -2,9 +2,7 @@
 
 namespace App\Repositories\Proxmox\Server;
 
-use App\Models\Node;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxActivityRepository extends ProxmoxRepository
 {
@@ -26,8 +24,6 @@ class ProxmoxActivityRepository extends ProxmoxRepository
 
     public function getStatus(string $upid)
     {
-        Assert::isInstanceOf($this->node, Node::class);
-
         $response = $this->getHttpClientWithParams([
             'task' => $upid,
         ])
@@ -39,8 +35,6 @@ class ProxmoxActivityRepository extends ProxmoxRepository
 
     public function getLog(string $upid, int $startAt = 0, int $limitLinesTo = 100)
     {
-        Assert::isInstanceOf($this->node, Node::class);
-
         $response = $this->getHttpClientWithParams([
             'task' => $upid,
         ])
@@ -55,8 +49,6 @@ class ProxmoxActivityRepository extends ProxmoxRepository
 
     public function delete(string $upid)
     {
-        Assert::isInstanceOf($this->node, Node::class);
-
         $response = $this->getHttpClientWithParams([
             'task' => $upid,
         ])

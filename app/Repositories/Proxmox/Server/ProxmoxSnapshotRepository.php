@@ -2,21 +2,13 @@
 
 namespace App\Repositories\Proxmox\Server;
 
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxSnapshotRepository extends ProxmoxRepository
 {
     public function getSnapshots()
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->get('/api2/json/nodes/{node}/qemu/{server}/snapshot')
             ->json();
 
