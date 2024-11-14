@@ -3,7 +3,6 @@
 namespace App\Repositories\Proxmox\Server;
 
 use App\Models\Node;
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
 use Webmozart\Assert\Assert;
 
@@ -11,13 +10,15 @@ class ProxmoxActivityRepository extends ProxmoxRepository
 {
     public function getLogs(int $startAt = 0, int $limitRows = 500)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-            ])
-            ->get('/api2/json/nodes/{node}/tasks', ['vmid' => $this->server->vmid, 'start' => $startAt, 'limit' => $limitRows])
+        $response = $this->getHttpClientWithParams()
+            ->get(
+                '/api2/json/nodes/{node}/tasks',
+                [
+                    'vmid' => $this->getServer()->vmid,
+                    'start' => $startAt,
+                    'limit' => $limitRows,
+                ]
+            )
             ->json();
 
         return $this->getData($response);
@@ -27,11 +28,9 @@ class ProxmoxActivityRepository extends ProxmoxRepository
     {
         Assert::isInstanceOf($this->node, Node::class);
 
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'task' => $upid,
-            ])
+        $response = $this->getHttpClientWithParams([
+            'task' => $upid,
+        ])
             ->get('/api2/json/nodes/{node}/tasks/{task}/status')
             ->json();
 
@@ -42,11 +41,9 @@ class ProxmoxActivityRepository extends ProxmoxRepository
     {
         Assert::isInstanceOf($this->node, Node::class);
 
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'task' => $upid,
-            ])
+        $response = $this->getHttpClientWithParams([
+            'task' => $upid,
+        ])
             ->get('/api2/json/nodes/{node}/tasks/{task}/log', [
                 'start' => $startAt,
                 'limit' => $limitLinesTo,
@@ -60,11 +57,9 @@ class ProxmoxActivityRepository extends ProxmoxRepository
     {
         Assert::isInstanceOf($this->node, Node::class);
 
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'task' => $upid,
-            ])
+        $response = $this->getHttpClientWithParams([
+            'task' => $upid,
+        ])
             ->delete('/api2/json/nodes/{node}/tasks/{task}')
             ->json();
 

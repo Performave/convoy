@@ -25,13 +25,7 @@ class ProxmoxSnapshotRepository extends ProxmoxRepository
 
     public function create(string $name)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->post('/api2/json/nodes/{node}/qemu/{server}/snapshot', [
                 'snapname' => $name,
             ])
@@ -42,14 +36,9 @@ class ProxmoxSnapshotRepository extends ProxmoxRepository
 
     public function restore(string $name)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-                'snapshot' => $name,
-            ])
+        $response = $this->getHttpClientWithParams([
+            'snapshot' => $name,
+        ])
             ->post('/api2/json/nodes/{node}/qemu/{server}/snapshot/{snapshot}/rollback')
             ->json();
 
@@ -58,14 +47,9 @@ class ProxmoxSnapshotRepository extends ProxmoxRepository
 
     public function delete(string $name)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-                'snapshot' => $name,
-            ])
+        $response = $this->getHttpClientWithParams([
+            'snapshot' => $name,
+        ])
             ->delete('/api2/json/nodes/{node}/qemu/{server}/snapshot/{snapshot}')
             ->json();
 

@@ -22,16 +22,12 @@ class ProxmoxStatisticsRepository extends ProxmoxRepository
     ): DataCollection {
         Assert::isInstanceOf($this->server, Server::class);
 
-        $response = $this->getHttpClient()
-                         ->withUrlParameters([
-                             'node' => $this->node->cluster,
-                             'server' => $this->server->vmid,
-                         ])
-                         ->get('/api2/json/nodes/{node}/qemu/{server}/rrddata', [
-                             'timeframe' => $from->value,
-                             'cf' => $consolidator->value,
-                         ])
-                         ->json();
+        $response = $this->getHttpClientWithParams()
+            ->get('/api2/json/nodes/{node}/qemu/{server}/rrddata', [
+                'timeframe' => $from->value,
+                'cf' => $consolidator->value,
+            ])
+            ->json();
 
         $test = Arr::map($this->getData($response), function (array $statistic) {
             return new ServerTimepointData(
@@ -49,6 +45,6 @@ class ProxmoxStatisticsRepository extends ProxmoxRepository
             );
         });
 
-        return ServerTimepointData::collection($test);
+        return ServerTimepointData::collect($test);
     }
 }

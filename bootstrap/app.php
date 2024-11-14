@@ -2,7 +2,6 @@
 
 use App\Http\Middleware\AdminAuthenticate;
 use App\Http\Middleware\Coterm\CotermAuthenticate;
-use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,41 +17,37 @@ return Application::configure(basePath: dirname(__DIR__))
                 Route::middleware('guest')->group(base_path('routes/auth.php'));
 
                 Route::middleware(['auth.session'])
-                     ->group(base_path('routes/base.php'));
+                    ->group(base_path('routes/base.php'));
 
                 Route::middleware(['auth'])->prefix('/api/client')
-                     ->as('client.')
-                     ->scopeBindings()
-                     ->group(base_path('routes/api-client.php'));
+                    ->as('client.')
+                    ->scopeBindings()
+                    ->group(base_path('routes/api-client.php'));
 
                 Route::middleware(['auth', AdminAuthenticate::class])
-                     ->prefix('/api/admin')
-                     ->as('admin.')
-                     ->scopeBindings()
-                     ->group(base_path('routes/api-admin.php'));
+                    ->prefix('/api/admin')
+                    ->as('admin.')
+                    ->scopeBindings()
+                    ->group(base_path('routes/api-admin.php'));
             });
 
             Route::middleware(['api'])->group(function () {
                 Route::middleware(['auth:sanctum'])
-                     ->prefix('/api/application')
-                     ->as('application.')
-                     ->scopeBindings()
-                     ->group(base_path('routes/api-application.php'));
+                    ->prefix('/api/application')
+                    ->as('application.')
+                    ->scopeBindings()
+                    ->group(base_path('routes/api-application.php'));
 
                 Route::middleware([CotermAuthenticate::class])
-                     ->prefix('/api/coterm')
-                     ->as('coterm.')
-                     ->scopeBindings()
-                     ->group(base_path('routes/api-coterm.php'));
+                    ->prefix('/api/coterm')
+                    ->as('coterm.')
+                    ->scopeBindings()
+                    ->group(base_path('routes/api-coterm.php'));
             });
         }
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectUsersTo(AppServiceProvider::HOME);
-
-        $middleware->alias([
-            'auth' => \App\Http\Middleware\Authenticate::class,
-        ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

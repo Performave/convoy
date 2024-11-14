@@ -5,34 +5,26 @@ namespace App\Repositories\Proxmox\Server;
 use App\Enums\Server\BackupCompressionType;
 use App\Enums\Server\BackupMode;
 use App\Models\Backup;
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxBackupRepository extends ProxmoxRepository
 {
     public function getBackups()
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-                         ->withUrlParameters([
-                             'node' => $this->node->cluster,
-                             'storage' => $this->node->backup_storage,
-                         ])
-                         ->get('/api2/json/nodes/{node}/storage/{storage}/content', [
-                             'content' => 'backup',
-                             'vmid' => $this->server->vmid,
-                         ])
-                         ->json();
+        $response = $this->getHttpClientWithParams([
+            'storage' => $this->getNode()->backup_storage,
+        ])
+            ->get('/api2/json/nodes/{node}/storage/{storage}/content', [
+                'content' => 'backup',
+                'vmid' => $this->getServer()->vmid,
+            ])
+            ->json();
 
         return $this->getData($response);
     }
 
     public function backup(BackupMode $mode, BackupCompressionType $compressionType)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
         switch ($mode) {
             case BackupMode::KILL:
                 $parsedMode = 'stop';
@@ -42,51 +34,41 @@ class ProxmoxBackupRepository extends ProxmoxRepository
                 break;
         }
 
-        $response = $this->getHttpClient()
-                         ->withUrlParameters([
-                             'node' => $this->node->cluster,
-                         ])
-                         ->post('/api2/json/nodes/{node}/vzdump', [
-                             'vmid' => $this->server->vmid,
-                             'storage' => $this->node->backup_storage,
-                             'mode' => $parsedMode,
-                             'compress' => $compressionType === BackupCompressionType::NONE ? (int) false : $compressionType->value,
-                         ])
-                         ->json();
+        $response = $this->getHttpClientWithParams()
+            ->post('/api2/json/nodes/{node}/vzdump', [
+                'vmid' => $this->getServer()->vmid,
+                'storage' => $this->getNode()->backup_storage,
+                'mode' => $parsedMode,
+                'compress' => $compressionType === BackupCompressionType::NONE ? (int) false : $compressionType->value,
+            ])
+            ->json();
 
         return $this->getData($response);
     }
 
     public function restore(Backup $backup)
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-                         ->withUrlParameters([
-                             'node' => $this->node->cluster,
-                         ])
-                         ->post('/api2/json/nodes/{node}/qemu', [
-                             'vmid' => $this->server->vmid,
-                             'force' => true,
-                             'archive' => "{$this->node->backup_storage}:backup/{$backup->file_name}",
-                         ])
-                         ->json();
+        $response = $this->getHttpClientWithParams()
+            ->post('/api2/json/nodes/{node}/qemu', [
+                'vmid' => $this->getServer()->vmid,
+                'force' => true,
+                'archive' => "{$this->getNode()->backup_storage}:backup/{$backup->file_name}",
+            ])
+            ->json();
 
         return $this->getData($response);
     }
 
     public function delete(Backup $backup)
     {
-        Assert::isInstanceOf($this->server, Server::class);
+        $node = $this->getNode();
 
-        $response = $this->getHttpClient()
-                         ->withUrlParameters([
-                             'node' => $this->node->cluster,
-                             'storage' => $this->node->backup_storage,
-                             'backup' => "{$this->node->backup_storage}:backup/{$backup->file_name}",
-                         ])
-                         ->delete('/api2/json/nodes/{node}/storage/{storage}/content/{backup}')
-                         ->json();
+        $response = $this->getHttpClientWithParams([
+            'storage' => $node->backup_storage,
+            'backup' => "{$node->backup_storage}:backup/{$backup->file_name}",
+        ])
+            ->delete('/api2/json/nodes/{node}/storage/{storage}/content/{backup}')
+            ->json();
 
         return $this->getData($response);
     }

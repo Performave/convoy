@@ -16,16 +16,12 @@ class ProxmoxConsoleRepository extends ProxmoxRepository
     {
         Assert::isInstanceOf($this->server, Server::class);
 
-        $response = $this->getHttpClient(headers: [
-            'CSRFPreventionToken' => $credentials->csrf_token,
-        ], options: [
-            'cookies' => CookieJar::fromArray([
-                'PVEAuthCookie' => $credentials->ticket,
-            ], $this->node->fqdn),
-        ], shouldAuthorize: false)
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
+        $response = $this->getHttpClientWithParams(shouldAuthorize: false)
+            ->withHeader('CSRFPreventionToken', $credentials->csrf_token)
+            ->withOptions([
+                'cookies' => CookieJar::fromArray([
+                    'PVEAuthCookie' => $credentials->ticket,
+                ], $this->node->fqdn),
             ])
             ->post('/api2/json/nodes/{node}/qemu/{server}/vncproxy', [
                 'websocket' => true,
@@ -43,18 +39,12 @@ class ProxmoxConsoleRepository extends ProxmoxRepository
 
     public function createXTermjsCredentials(UserCredentialsData $credentials): XTermCredentialsData
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient(headers: [
-            'CSRFPreventionToken' => $credentials->csrf_token,
-        ], options: [
-            'cookies' => CookieJar::fromArray([
-                'PVEAuthCookie' => $credentials->ticket,
-            ], $this->node->fqdn),
-        ], shouldAuthorize: false)
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
+        $response = $this->getHttpClientWithParams(shouldAuthorize: false)
+            ->withHeader('CSRFPreventionToken', $credentials->csrf_token)
+            ->withOptions([
+                'cookies' => CookieJar::fromArray([
+                    'PVEAuthCookie' => $credentials->ticket,
+                ], $this->node->fqdn),
             ])
             ->post('/api2/json/nodes/{node}/qemu/{server}/termproxy', [
                 'vmid' => $this->server->vmid, // this is to fix the "NOT A HASH REFERENCE" stupid error Proxmox has if there's no JSON body

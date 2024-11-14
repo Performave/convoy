@@ -2,21 +2,13 @@
 
 namespace App\Repositories\Proxmox\Server;
 
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxConfigRepository extends ProxmoxRepository
 {
-    public function getConfig()
+    public function getConfig(): array
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->get('/api2/json/nodes/{node}/qemu/{server}/config')
             ->json();
 
@@ -35,7 +27,7 @@ class ProxmoxConfigRepository extends ProxmoxRepository
 
     public function getResources()
     {
-        Assert::isInstanceOf($this->server, Server::class);
+        $server = $this->getServer();
 
         $response = $this->getHttpClient()
             ->get('/api2/json/cluster/resources')
@@ -43,18 +35,12 @@ class ProxmoxConfigRepository extends ProxmoxRepository
 
         $data = $this->getData($response);
 
-        return collect($data)->where('vmid', $this->server->vmid)->firstOrFail();
+        return collect($data)->where('vmid', $server->vmid)->firstOrFail();
     }
 
-    public function update(array $payload = [], bool $put = false)
+    public function update(array $payload = [])
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->post('/api2/json/nodes/{node}/qemu/{server}/config', $payload)
             ->json();
 

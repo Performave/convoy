@@ -2,27 +2,13 @@
 
 namespace App\Repositories\Proxmox\Server;
 
-use App\Exceptions\Repository\Proxmox\ProxmoxConnectionException;
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
-use Webmozart\Assert\Assert;
 
 class ProxmoxCloudinitRepository extends ProxmoxRepository
 {
-    /**
-     * @return mixed
-     *
-     * @throws ProxmoxConnectionException
-     */
     public function getConfig()
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->get('/api2/json/nodes/{node}/qemu/{server}/config')
             ->json();
 
@@ -31,13 +17,7 @@ class ProxmoxCloudinitRepository extends ProxmoxRepository
 
     public function update(array $params = [])
     {
-        Assert::isInstanceOf($this->server, Server::class);
-
-        $response = $this->getHttpClient()
-            ->withUrlParameters([
-                'node' => $this->node->cluster,
-                'server' => $this->server->vmid,
-            ])
+        $response = $this->getHttpClientWithParams()
             ->post('/api2/json/nodes/{node}/qemu/{server}/config', $params)
             ->json();
 

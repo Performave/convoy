@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Route::bind('server', function ($value) {
             return Server::query()->where(strlen($value) === 8 ? 'uuid_short' : 'uuid', $value)
-                         ->firstOrFail();
+                ->firstOrFail();
         });
     }
 }
