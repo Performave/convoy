@@ -1,4 +1,5 @@
 import AuthSetting from '@/components/interfaces/Client/Security/AuthSetting.tsx'
+import PasskeysContainer from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import {
     Card,
@@ -32,13 +33,7 @@ const AuthenticationCard = () => {
                     onClick={() => {}}
                 />
                 <Separator />
-                <AuthSetting
-                    title={'Passkeys'}
-                    description={
-                        'Securely sign in with fingerprint, face, screen lock, or security key'
-                    }
-                    onClick={() => {}}
-                />
+                <PasskeysContainer />
             </CardContent>
         </Card>
     )

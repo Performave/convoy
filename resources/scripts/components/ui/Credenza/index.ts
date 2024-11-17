@@ -17,7 +17,7 @@ interface BaseProps {
 
 interface CredenzaProps extends BaseProps {
     className?: string
-    asChild?: true
+    asChild?: boolean
 }
 
 export {

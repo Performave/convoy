@@ -1,25 +1,32 @@
 import { IconChevronRight } from '@tabler/icons-react'
-
-import { Button } from '@/components/ui/Button'
+import { forwardRef } from 'react'
 
 interface Props {
     title: string
     description: string
-    onClick: () => void
+    onClick?: () => void
 }
 
-const AuthSetting = ({ title, description, onClick }: Props) => {
-    return (
-        <div className={'flex justify-between'}>
-            <div className='space-y-0.5'>
-                <p className='text-sm font-medium'>{title}</p>
-                <p className='text-xs text-muted-foreground'>{description}</p>
-            </div>
-            <Button size={'icon'} variant={'ghost'} onClick={onClick}>
+const AuthSetting = forwardRef<HTMLButtonElement, Props>(
+    ({ title, description, onClick }, ref) => {
+        return (
+            <button
+                ref={ref}
+                className={
+                    'flex w-full items-center justify-between rounded-sm text-left ring-8 ring-transparent hover:bg-accent hover:ring-accent'
+                }
+                onClick={onClick}
+            >
+                <div className='space-y-0.5'>
+                    <p className='text-sm font-medium'>{title}</p>
+                    <p className='text-xs text-muted-foreground'>
+                        {description}
+                    </p>
+                </div>
                 <IconChevronRight className={'h-4 w-4 text-muted-foreground'} />
-            </Button>
-        </div>
-    )
-}
+            </button>
+        )
+    }
+)
 
 export default AuthSetting

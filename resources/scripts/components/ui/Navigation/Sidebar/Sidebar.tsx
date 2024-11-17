@@ -5,7 +5,6 @@ import {
     IconSettings,
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
-import { useShallow } from 'zustand/react/shallow'
 
 import Logo from '@/components/ui/Branding/Logo.tsx'
 import { Button } from '@/components/ui/Button'
@@ -20,14 +19,12 @@ interface Props {
 
 const Sidebar = ({ routes }: Props) => {
     const { expanded, setExpanded, keepExpanded, setKeepExpanded } =
-        useSidebarStore(
-            useShallow(state => ({
-                expanded: state.expanded,
-                setExpanded: state.setExpanded,
-                keepExpanded: state.keepExpanded,
-                setKeepExpanded: state.setKeepExpanded,
-            }))
-        )
+        useSidebarStore(state => ({
+            expanded: state.expanded,
+            setExpanded: state.setExpanded,
+            keepExpanded: state.keepExpanded,
+            setKeepExpanded: state.setKeepExpanded,
+        }))
 
     const setExpandedIfNotKeepExpanded = (value: boolean) => {
         if (!keepExpanded) {

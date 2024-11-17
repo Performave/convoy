@@ -7,13 +7,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', Client\SessionController::class);
 
+Route::prefix('/account')->group(function () {
+    Route::get('/passkeys', [Client\PasskeyController::class, 'index']);
+    Route::post('/passkeys/{passkey}/rename', [Client\PasskeyController::class, 'rename']);
+    Route::delete('/passkeys/{passkey}', [Client\PasskeyController::class, 'destroy']);
+    Route::get('/passkeys/registration-options', [Client\PasskeyController::class, 'create']);
+    Route::post('/passkeys/verify-registration', [Client\PasskeyController::class, 'store']);
+});
+
 Route::get('/servers', [Client\Servers\ServerController::class, 'index']);
 
 Route::prefix('/servers/{server}')->middleware(
     [ServerSubject::class, AuthenticateServerAccess::class],
 )->group(function () {
     Route::get('/', [Client\Servers\ServerController::class, 'show'])
-         ->name('servers.show');
+        ->name('servers.show');
 
     Route::get(
         '/state',

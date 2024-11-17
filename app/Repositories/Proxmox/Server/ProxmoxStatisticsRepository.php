@@ -7,21 +7,16 @@ use App\Data\Server\Proxmox\Usages\ServerNetworkData;
 use App\Data\Server\Proxmox\Usages\ServerTimepointData;
 use App\Enums\Server\StatisticConsolidatorFunction;
 use App\Enums\Server\StatisticTimeRange;
-use App\Models\Server;
 use App\Repositories\Proxmox\ProxmoxRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
-use Spatie\LaravelData\DataCollection;
-use Webmozart\Assert\Assert;
 
 class ProxmoxStatisticsRepository extends ProxmoxRepository
 {
     public function getStatistics(
         StatisticTimeRange $from,
         StatisticConsolidatorFunction $consolidator = StatisticConsolidatorFunction::AVERAGE,
-    ): DataCollection {
-        Assert::isInstanceOf($this->server, Server::class);
-
+    ): array {
         $response = $this->getHttpClientWithParams()
             ->get('/api2/json/nodes/{node}/qemu/{server}/rrddata', [
                 'timeframe' => $from->value,

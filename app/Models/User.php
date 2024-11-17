@@ -20,7 +20,7 @@ use Laravel\Sanctum\NewAccessToken;
  */
 class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
-    use HasApiTokens, HasFactory, Notifiable, Authenticatable, Authorizable;
+    use Authenticatable, Authorizable, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -89,6 +89,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
+    }
+
+    public function passkeys(): HasMany
+    {
+        return $this->hasMany(Passkey::class);
     }
 
     public function getRouteKeyName(): string

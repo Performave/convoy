@@ -38,7 +38,7 @@ function Login() {
         },
     })
 
-    const onSubmit = async (data: z.infer<typeof schema>) => {
+    const submit = async (data: z.infer<typeof schema>) => {
         try {
             await login(data)
 
@@ -48,7 +48,14 @@ function Login() {
                 // @ts-expect-error
                 to: redirect ? `/${redirect.slice(1)}` : '/',
             })
-        } catch {}
+        } catch {
+            form.setError('email', {
+                message: 'Invalid email or password',
+            })
+            form.setError('password', {
+                message: 'Invalid email or password',
+            })
+        }
     }
 
     return (
@@ -60,7 +67,7 @@ function Login() {
                 </CardDescription>
             </CardHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
+                <form onSubmit={form.handleSubmit(submit)}>
                     <CardContent className='grid gap-4'>
                         <InputForm
                             name={'email'}
