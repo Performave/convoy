@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
-            $table->binary('credential_id');
+            $table->string('credential_id');
             $table->json('data');
 
             $table->timestamp('last_used_at')->nullable();

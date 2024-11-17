@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconKey } from '@tabler/icons-react'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import login from '@/api/auth/login.ts'
 
-import { Button } from '@/components/ui/Button'
+import LoginWithPasskeyButton from '@/components/interfaces/Auth/LoginWithPasskeyButton.tsx'
+
 import {
     CardContent,
     CardDescription,
@@ -41,8 +41,6 @@ function Login() {
     const submit = async (data: z.infer<typeof schema>) => {
         try {
             await login(data)
-
-            console.log({ redirect })
 
             await navigate({
                 // @ts-expect-error
@@ -92,10 +90,7 @@ function Login() {
                                 </span>
                             </div>
                         </div>
-                        <Button className={'w-full'} variant='outline'>
-                            <IconKey className='mr-2 h-4 w-4' />
-                            Passkeys
-                        </Button>
+                        <LoginWithPasskeyButton redirectTo={redirect} />
                     </CardFooter>
                 </form>
             </Form>

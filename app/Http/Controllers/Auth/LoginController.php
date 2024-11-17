@@ -5,20 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Exceptions\Service\Api\InvalidJWTException;
 use App\Models\User;
 use App\Services\Api\JWTService;
-use Illuminate\Contracts\View\Factory as ViewFactory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LoginController
 {
-    public function __construct(private ViewFactory $view, private JWTService $JWTService) {}
-
-    public function index(): View
-    {
-        return $this->view->make('app');
-    }
+    public function __construct(private JWTService $JWTService) {}
 
     public function authorizeToken(Request $request)
     {

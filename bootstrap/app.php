@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             Route::middleware('web')->group(function () {
-                Route::middleware('guest')->group(base_path('routes/auth.php'));
+                Route::prefix('/api/auth')
+                    ->group(base_path('routes/api-auth.php'));
 
                 Route::middleware(['auth.session'])
                     ->group(base_path('routes/base.php'));

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\Auth\PasskeySerializer;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use Webauthn\PublicKeyCredentialDescriptor;
 use Webauthn\PublicKeyCredentialSource;
 
@@ -45,7 +46,7 @@ class Passkey extends Model
                 PublicKeyCredentialSource::class
             ),
             set: fn (PublicKeyCredentialSource $value) => [
-                'credential_id' => $value->publicKeyCredentialId,
+                'credential_id' => Base64UrlSafe::encodeUnpadded($value->publicKeyCredentialId),
                 'data' => $serializer->toJson($value),
             ],
         );

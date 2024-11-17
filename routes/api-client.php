@@ -9,10 +9,12 @@ Route::get('/user', Client\SessionController::class);
 
 Route::prefix('/account')->group(function () {
     Route::get('/passkeys', [Client\PasskeyController::class, 'index']);
-    Route::post('/passkeys/{passkey}/rename', [Client\PasskeyController::class, 'rename']);
-    Route::delete('/passkeys/{passkey}', [Client\PasskeyController::class, 'destroy']);
     Route::get('/passkeys/registration-options', [Client\PasskeyController::class, 'create']);
     Route::post('/passkeys/verify-registration', [Client\PasskeyController::class, 'store']);
+    Route::middleware('can:update,passkey')->group(function () {
+        Route::post('/passkeys/{passkey}/rename', [Client\PasskeyController::class, 'rename']);
+        Route::delete('/passkeys/{passkey}', [Client\PasskeyController::class, 'destroy']);
+    });
 });
 
 Route::get('/servers', [Client\Servers\ServerController::class, 'index']);

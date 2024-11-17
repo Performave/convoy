@@ -6,7 +6,7 @@ interface LoginParams {
 }
 
 const login = async ({ email, password }: LoginParams) => {
-    await axios.post('/login', {
+    await axios.post('/api/auth/login', {
         email,
         password,
     })
