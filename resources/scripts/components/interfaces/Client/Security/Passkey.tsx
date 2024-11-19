@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { usePasskeysStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
+import { usePasskeysModalStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import { Button } from '@/components/ui/Button'
 
@@ -14,7 +14,9 @@ interface Props {
 }
 
 const Passkey = ({ passkey }: Props) => {
-    const openDialog = usePasskeysStore(useShallow(state => state.openDialog))
+    const openModal = usePasskeysModalStore(
+        useShallow(state => state.openModal)
+    )
     const formattedDate = useMemo(
         () => format(passkey.createdAt, 'MMMM do, yyyy h:mm a'),
         [passkey.createdAt]
@@ -36,14 +38,14 @@ const Passkey = ({ passkey }: Props) => {
                 <Button
                     variant={'ghost'}
                     size={'icon'}
-                    onClick={() => openDialog('rename', passkey)}
+                    onClick={() => openModal('rename', passkey)}
                 >
                     <IconPencil className={'h-4 w-4'} />
                 </Button>
                 <Button
                     variant={'ghost'}
                     size={'icon'}
-                    onClick={() => openDialog('delete', passkey)}
+                    onClick={() => openModal('delete', passkey)}
                 >
                     <IconTrash className={'h-4 w-4'} />
                 </Button>

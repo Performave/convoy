@@ -8,7 +8,7 @@ import { useShallow } from 'zustand/react/shallow'
 import renamePasskey from '@/api/account/passkeys/renamePasskey.ts'
 import { getKey as getPasskeysSWRKey } from '@/api/account/passkeys/use-passkeys-swr.ts'
 
-import { usePasskeysStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
+import { usePasskeysModalStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -29,11 +29,11 @@ const schema = z.object({
 })
 
 const PasskeyRenameDialog = () => {
-    const [passkey, isRenameDialogOpen, closeDialog] = usePasskeysStore(
+    const [passkey, isRenameDialogOpen, closeModal] = usePasskeysModalStore(
         useShallow(state => [
-            state.selectedPasskey,
-            state.isRenameDialogOpen,
-            state.closeDialog,
+            state.modalData,
+            state.activeModal === 'rename',
+            state.closeModal,
         ])
     )
 
@@ -57,14 +57,14 @@ const PasskeyRenameDialog = () => {
 
         await mutate(getPasskeysSWRKey())
 
-        closeDialog()
+        closeModal()
     }
 
     return (
         <Credenza
             open={isRenameDialogOpen}
             onOpenChange={open => {
-                if (!open) closeDialog()
+                if (!open) closeModal()
             }}
         >
             <CredenzaContent className={'max-h-[50vh]'}>
@@ -85,7 +85,7 @@ const PasskeyRenameDialog = () => {
                         <CredenzaFooter className={'mt-4'}>
                             <Button
                                 variant={'outline'}
-                                onClick={closeDialog}
+                                onClick={closeModal}
                                 type={'button'}
                             >
                                 Cancel

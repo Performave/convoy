@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow'
 import deletePasskey from '@/api/account/passkeys/deletePasskey.ts'
 import { getKey as getPasskeysSWRKey } from '@/api/account/passkeys/use-passkeys-swr.ts'
 
-import { usePasskeysStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
+import { usePasskeysModalStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -20,11 +20,11 @@ import {
 import { toast } from '@/components/ui/Toast'
 
 const PasskeyDeleteDialog = () => {
-    const [passkey, isDeleteDialogOpen, closeDialog] = usePasskeysStore(
+    const [passkey, isDeleteDialogOpen, closeModal] = usePasskeysModalStore(
         useShallow(state => [
-            state.selectedPasskey,
-            state.isDeleteDialogOpen,
-            state.closeDialog,
+            state.modalData,
+            state.activeModal === 'delete',
+            state.closeModal,
         ])
     )
 
@@ -38,7 +38,7 @@ const PasskeyDeleteDialog = () => {
 
             await mutate(getPasskeysSWRKey())
 
-            closeDialog()
+            closeModal()
         } catch (e) {
             toast({
                 description: 'Deletion failed',
@@ -52,7 +52,7 @@ const PasskeyDeleteDialog = () => {
         <Credenza
             open={isDeleteDialogOpen}
             onOpenChange={open => {
-                if (!open) closeDialog()
+                if (!open) closeModal()
             }}
         >
             <CredenzaContent className={'max-h-[50vh]'}>
@@ -68,7 +68,7 @@ const PasskeyDeleteDialog = () => {
                 </CredenzaHeader>
 
                 <CredenzaFooter className={'mt-4'}>
-                    <Button variant={'outline'} onClick={closeDialog}>
+                    <Button variant={'outline'} onClick={closeModal}>
                         Cancel
                     </Button>
                     <Button

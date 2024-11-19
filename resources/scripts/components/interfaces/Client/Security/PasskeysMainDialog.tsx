@@ -7,7 +7,7 @@ import verifyRegistration from '@/api/account/passkeys/verifyRegistration.ts'
 
 import AuthSetting from '@/components/interfaces/Client/Security/AuthSetting.tsx'
 import PasskeyList from '@/components/interfaces/Client/Security/PasskeyList.tsx'
-import { usePasskeysStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
+import { usePasskeysModalStore } from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import { Alert, AlertDescription } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
@@ -25,8 +25,12 @@ import {
 import { toast } from '@/components/ui/Toast'
 
 const PasskeysContainer = () => {
-    const [isMainDialogOpen, openDialog] = usePasskeysStore(
-        useShallow(state => [state.isMainDialogOpen, state.openDialog])
+    const [isMainDialogOpen, openModal, closeModal] = usePasskeysModalStore(
+        useShallow(state => [
+            state.activeModal === 'main',
+            state.openModal,
+            state.closeModal,
+        ])
     )
 
     const [state, register] = useAsyncFn(async () => {
@@ -37,7 +41,7 @@ const PasskeysContainer = () => {
 
             const passkey = await verifyRegistration(registrationData)
 
-            openDialog('rename', passkey)
+            openModal('rename', passkey)
 
             toast({
                 description: 'Passkey added',
@@ -59,9 +63,7 @@ const PasskeysContainer = () => {
     return (
         <Credenza
             open={isMainDialogOpen}
-            onOpenChange={open =>
-                usePasskeysStore.setState({ isMainDialogOpen: open })
-            }
+            onOpenChange={open => (open ? openModal('main') : closeModal())}
         >
             <CredenzaTrigger asChild>
                 <AuthSetting
