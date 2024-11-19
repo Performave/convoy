@@ -4,16 +4,39 @@ use App\Http\Controllers\Client;
 use App\Http\Middleware\Activity\ServerSubject;
 use App\Http\Middleware\Client\Server\AuthenticateServerAccess;
 use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
+use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
+use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
+use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
 
 Route::get('/user', Client\SessionController::class);
 
 Route::prefix('/account')->group(function () {
-    Route::get('/passkeys', [Client\PasskeyController::class, 'index']);
-    Route::get('/passkeys/registration-options', [Client\PasskeyController::class, 'create']);
-    Route::post('/passkeys/verify-registration', [Client\PasskeyController::class, 'store']);
-    Route::middleware('can:update,passkey')->group(function () {
-        Route::post('/passkeys/{passkey}/rename', [Client\PasskeyController::class, 'rename']);
-        Route::delete('/passkeys/{passkey}', [Client\PasskeyController::class, 'destroy']);
+    Route::prefix('/passkeys')->group(function () {
+        Route::get('/', [Client\PasskeyController::class, 'index'])->name('passkeys.index');
+        Route::get('/registration-options', [Client\PasskeyController::class, 'create'])->name('passkeys.create');
+        Route::post('/verify-registration', [Client\PasskeyController::class, 'store'])->name('passkeys.store');
+
+        Route::middleware('can:update,passkey')->group(function () {
+            Route::post('/{passkey}/rename', [Client\PasskeyController::class, 'rename'])->name('passkeys.rename');
+            Route::delete('/{passkey}', [Client\PasskeyController::class, 'destroy'])->name('passkeys.destroy');
+        });
+    });
+
+    Route::prefix('/authenticator')->group(function () {
+        Route::post('/generate-challenge', [TwoFactorAuthenticatedSessionController::class, 'store']);
+
+        Route::middleware('password.confirm')->group(function () {
+            Route::post('/enable', [TwoFactorAuthenticationController::class, 'store']);
+            Route::post('/disable', [TwoFactorAuthenticationController::class, 'destroy']);
+            Route::post('/confirm', [ConfirmedTwoFactorAuthenticationController::class, 'store']);
+            Route::get('/qr-code', [TwoFactorQrCodeController::class, 'show']);
+            Route::get('/secret-key', [TwoFactorSecretKeyController::class, 'show']);
+            Route::get('/recovery-codes', [RecoveryCodeController::class, 'index']);
+            Route::post('/recovery-codes/regenerate', [RecoveryCodeController::class, 'store']);
+        });
     });
 });
 

@@ -25,4 +25,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    /* Confirmable Identity Routes */
+    Route::prefix('/identity')->group(function () {
+        Route::get('/passkey-authentication-options', [Auth\ConfirmableIdentityController::class, 'generatePasskeyAuthOptions']);
+        Route::post('/confirm', [Auth\ConfirmableIdentityController::class, 'store']);
+    });
 });

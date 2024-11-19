@@ -30,15 +30,11 @@ class PasskeyLoginController
             $request->session()->get('passkeys.authentication-options'),
         );
 
-        if (! $passkey) {
+        if (! $passkey || ! $passkey->user) {
             throw new InvalidPasskeyException;
         }
 
         $user = $passkey->user;
-
-        if (! $user) {
-            throw new InvalidPasskeyException;
-        }
 
         auth()->login($user);
 
