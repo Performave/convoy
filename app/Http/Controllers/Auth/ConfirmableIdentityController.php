@@ -24,7 +24,7 @@ class ConfirmableIdentityController
 
     public function generatePasskeyAuthOptions(Request $request)
     {
-        $options = $this->generateOptionsAction->execute($request->user());
+        $options = $this->generateOptionsAction->execute();
 
         $request->session()->put('passkeys.authentication-options', $options);
 
@@ -40,7 +40,7 @@ class ConfirmableIdentityController
                 $request->session()->get('passkeys.authentication-options')
             );
 
-            if (! $passkey || ! $passkey->user) {
+            if (! $passkey || ! $passkey->user || $passkey->user->id !== $request->user()->id) {
                 throw new InvalidPasskeyException;
             }
         } elseif ($request->filled('password')) {

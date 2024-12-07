@@ -12,7 +12,7 @@ const PasskeyList = () => {
     const { data, isLoading } = usePasskeysSWR()
 
     if (isLoading) {
-        return <Skeleton className={'h-12 w-full'} />
+        return <Skeleton className={'h-24 w-full'} />
     }
 
     if (!data || data?.length === 0) {

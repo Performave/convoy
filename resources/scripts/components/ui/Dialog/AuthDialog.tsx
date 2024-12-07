@@ -1,11 +1,16 @@
 import { ModalStore } from '@/hooks/create-modal-store.ts'
+import usePasskeyConfirmation from '@/hooks/use-passkey-confirmation.ts'
 import useIdentityConfirmationStore, {
     ConfirmationType,
 } from '@/stores/identity-confirmation-store.ts'
+import { handleFormErrors } from '@/utils/http.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
+
+import confirmIdentity from '@/api/auth/identity/confirmIdentity.ts'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -21,18 +26,12 @@ import {
 import { Form, FormButton } from '@/components/ui/Form'
 import { InputForm } from '@/components/ui/Forms'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
+import { toast } from '@/components/ui/Toast'
 
-const passwordSchema = z.object({
-    type: z.literal('PASSWORD'),
-    password: z.string().min(1),
+const schema = z.object({
+    type: z.enum([ConfirmationType.Password, ConfirmationType.Passkey]),
+    password: z.string(),
 })
-
-const passkeySchema = z.object({
-    type: z.literal('PASSKEY'),
-    passkey: z.array(z.any()).nullable(),
-})
-
-const schema = z.discriminatedUnion('type', [passwordSchema, passkeySchema])
 
 interface Props {
     selector?: string
@@ -46,9 +45,11 @@ export const createAuthMiddleware = <T extends string>(id: T) => ({
 })
 
 const AuthDialog = ({ selector = 'auth', useModalStore }: Props) => {
-    const [confirmationType, confirmIdentity] = useIdentityConfirmationStore(
-        useShallow(state => [state.confirmationType, state.confirmIdentity])
-    )
+    const [confirmationType, dispatchIdentityConfirmed] =
+        useIdentityConfirmationStore(
+            useShallow(state => [state.confirmationType, state.confirmIdentity])
+        )
+    const { confirm: confirmWithPasskey } = usePasskeyConfirmation()
     const [isAuthDialogOpen, back, closeModal] = useModalStore(
         useShallow(state => [
             state.activeModal === selector,
@@ -61,19 +62,55 @@ const AuthDialog = ({ selector = 'auth', useModalStore }: Props) => {
         resolver: zodResolver(schema),
         defaultValues: {
             type: confirmationType,
-            passkey: null,
             password: '',
         },
     })
 
+    useEffect(() => {
+        form.reset({ type: confirmationType, password: '' })
+    }, [confirmationType])
+
     const type = form.watch('type')
+
+    // Auto-submit when the modal initially opens with Passkey selected
+    useEffect(() => {
+        if (isAuthDialogOpen && type === ConfirmationType.Passkey) {
+            form.handleSubmit(submit)()
+        }
+    }, [isAuthDialogOpen])
+
+    // Auto-submit when the user manually selects Passkey
+    useEffect(() => {
+        if (isAuthDialogOpen && type === ConfirmationType.Passkey) {
+            form.handleSubmit(submit)()
+        }
+    }, [type])
 
     const submit = async (_data: any) => {
         const data = _data as z.infer<typeof schema>
-        confirmIdentity(
-            ConfirmationType[data.type as keyof typeof ConfirmationType]
-        )
-        closeModal(selector)
+        try {
+            if (data.type === ConfirmationType.Password) {
+                await confirmIdentity({ password: data.password })
+            } else {
+                await confirmWithPasskey()
+            }
+
+            dispatchIdentityConfirmed(data.type)
+
+            closeModal(selector)
+        } catch (e) {
+            if (handleFormErrors(e, form.setError)) return
+
+            const message =
+                e instanceof Error ? e.message : 'An unexpected error occurred'
+
+            toast({
+                description: message,
+                variant: 'destructive',
+            })
+
+            throw e
+        }
     }
 
     return (
@@ -109,23 +146,24 @@ const AuthDialog = ({ selector = 'auth', useModalStore }: Props) => {
                                     }
                                 >
                                     <TabsList>
-                                        <TabsTrigger value={'PASSWORD'}>
+                                        <TabsTrigger
+                                            value={ConfirmationType.Password}
+                                        >
                                             Password
                                         </TabsTrigger>
-                                        <TabsTrigger value={'PASSKEY'}>
+                                        <TabsTrigger
+                                            value={ConfirmationType.Passkey}
+                                        >
                                             Passkey
                                         </TabsTrigger>
                                     </TabsList>
                                 </div>
-                                <TabsContent value={'PASSWORD'}>
+                                <TabsContent value={ConfirmationType.Password}>
                                     <InputForm
                                         name={'password'}
                                         label={'Password'}
                                         type={'password'}
                                     />
-                                </TabsContent>
-                                <TabsContent value={'PASSKEY'}>
-                                    <p>passkey</p>
                                 </TabsContent>
                             </Tabs>
                         </CredenzaBody>

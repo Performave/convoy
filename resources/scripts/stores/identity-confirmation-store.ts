@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 
-const EXPIRY_TIME = 1000 * 60 * 5 // 5 minutes
+const EXPIRY_TIME = 1000 * 60 * 5 // 5 minutes in milliseconds
 
 export enum ConfirmationType {
     Password = 'PASSWORD',
@@ -30,6 +30,7 @@ export const useIdentityConfirmationStore = create(
                     Date.now() - lastConfirmed <= EXPIRY_TIME
                 )
             },
+            reset: () => set({ lastConfirmed: null }),
         }),
         {
             name: 'identity-confirmation-store',

@@ -1,5 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { AxiosError } from 'axios'
+import { FieldValues, UseFormSetError } from 'react-hook-form'
 
 
 export interface FractalResponseData {
@@ -105,4 +106,50 @@ export const processAxiosError = (error: AxiosError) => {
     if (error.response?.status === 404) {
         throw notFound()
     }
+}
+
+interface ValidationErrorResponse {
+    message: string
+    errors: Record<string, string[]>
+}
+
+// Define a type for the expected error response structure
+interface ErrorWithResponse {
+    response: {
+        status: number
+        data: ValidationErrorResponse
+    }
+}
+
+export const handleFormErrors = <T extends FieldValues>(
+    error: unknown,
+    setError: UseFormSetError<T>
+): boolean => {
+    // Check if the error has the expected response structure
+    if (
+        error &&
+        typeof error === 'object' &&
+        'response' in error &&
+        (error as ErrorWithResponse).response?.status === 422
+    ) {
+        const responseData = (error as ErrorWithResponse).response.data
+
+        if (responseData && responseData.errors) {
+            // Loop through the errors and set the first error message for each field
+            for (const [field, messages] of Object.entries(
+                responseData.errors
+            )) {
+                if (messages.length > 0) {
+                    // @ts-ignore
+                    setError(field as keyof T, {
+                        type: 'manual',
+                        message: messages[0],
+                    })
+                }
+            }
+            return true // Indicate that the error was handled
+        }
+    }
+
+    return false // Indicate that the error was not handled
 }

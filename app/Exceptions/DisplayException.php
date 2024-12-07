@@ -8,9 +8,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
+
+use function collect;
+use function config;
+use function get_class;
 
 class DisplayException extends ConvoyException implements HttpExceptionInterface
 {
@@ -52,11 +57,32 @@ class DisplayException extends ConvoyException implements HttpExceptionInterface
      */
     public function render(Request $request): JsonResponse|RedirectResponse
     {
-        if ($request->expectsJson()) {
-            return response()->json(Handler::toArray($this), $this->getStatusCode(), $this->getHeaders());
-        }
+        return response()->json($this->convertExceptionToArray($this), $this->getStatusCode(), $this->getHeaders());
+    }
 
-        return redirect()->back()->withInput();
+    /**
+     * Convert the given exception to an array.
+     */
+    protected function convertExceptionToArray(Throwable $e): array
+    {
+        return config('app.debug') ? [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => collect($e->getTrace())->map(fn ($trace) => Arr::except($trace, ['args']))->all(),
+        ] : [
+            'exception' => get_class($e),
+            'message' => $this->isHttpException($e) ? $e->getMessage() : 'Server Error',
+        ];
+    }
+
+    /**
+     * Determine if the given exception is an HTTP exception.
+     */
+    protected function isHttpException(Throwable $e): bool
+    {
+        return $e instanceof HttpExceptionInterface;
     }
 
     /**

@@ -1,5 +1,7 @@
 import { useTheme } from '@/providers/theme-provider.tsx'
+import useIdentityConfirmationStore from '@/stores/identity-confirmation-store.ts'
 import { useRouter } from '@tanstack/react-router'
+import { useShallow } from 'zustand/react/shallow'
 
 import logout from '@/api/auth/logout.ts'
 import useUserSWR from '@/api/auth/use-user-swr.ts'
@@ -26,11 +28,13 @@ import {
 const AvatarWithDropdown = () => {
     const { theme, setTheme } = useTheme()
     const { data: user, mutate } = useUserSWR()
+    const reset = useIdentityConfirmationStore(useShallow(state => state.reset))
 
     const { navigate } = useRouter()
 
     const signout = async () => {
         await logout()
+        reset()
         await mutate(undefined, false)
         await navigate({ to: '/auth/login' })
     }
