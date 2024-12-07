@@ -68,7 +68,7 @@ const PasskeyDeleteDialog = () => {
                 </CredenzaHeader>
 
                 <CredenzaFooter className={'mt-4'}>
-                    <Button variant={'outline'} onClick={closeModal}>
+                    <Button variant={'outline'} onClick={() => closeModal()}>
                         Cancel
                     </Button>
                     <Button

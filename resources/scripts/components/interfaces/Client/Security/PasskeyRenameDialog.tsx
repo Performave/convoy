@@ -37,7 +37,7 @@ const PasskeyRenameDialog = () => {
         ])
     )
 
-    const form = useForm<z.infer<typeof schema>>({
+    const form = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
             name: passkey?.name,
@@ -85,7 +85,7 @@ const PasskeyRenameDialog = () => {
                         <CredenzaFooter className={'mt-4'}>
                             <Button
                                 variant={'outline'}
-                                onClick={closeModal}
+                                onClick={() => closeModal()}
                                 type={'button'}
                             >
                                 Cancel

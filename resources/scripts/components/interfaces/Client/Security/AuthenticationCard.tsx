@@ -1,4 +1,5 @@
 import AuthSetting from '@/components/interfaces/Client/Security/AuthSetting.tsx'
+import AuthenticatorContainer from '@/components/interfaces/Client/Security/AuthenticatorContainer.tsx'
 import PasskeysContainer from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
 
 import {
@@ -27,11 +28,7 @@ const AuthenticationCard = () => {
                     onClick={() => {}}
                 />
                 <Separator />
-                <AuthSetting
-                    title={'Authenticator'}
-                    description={'Time-based verification codes using an app'}
-                    onClick={() => {}}
-                />
+                <AuthenticatorContainer />
                 <Separator />
                 <PasskeysContainer />
             </CardContent>
