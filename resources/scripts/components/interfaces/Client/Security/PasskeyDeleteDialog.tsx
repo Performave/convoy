@@ -16,6 +16,7 @@ import {
     CredenzaFooter,
     CredenzaHeader,
     CredenzaTitle,
+    CredenzaTrigger,
 } from '@/components/ui/Credenza'
 import { toast } from '@/components/ui/Toast'
 
@@ -38,7 +39,7 @@ const PasskeyDeleteDialog = () => {
 
             await mutate(getPasskeysSWRKey())
 
-            closeModal()
+            closeModal('delete')
         } catch (e) {
             toast({
                 description: 'Deletion failed',
@@ -51,9 +52,7 @@ const PasskeyDeleteDialog = () => {
     return (
         <Credenza
             open={isDeleteDialogOpen}
-            onOpenChange={open => {
-                if (!open) closeModal()
-            }}
+            onOpenChange={open => !open && closeModal('delete')}
         >
             <CredenzaContent className={'max-h-[50vh]'}>
                 <CredenzaHeader className={'overflow-x-hidden'}>
@@ -68,9 +67,9 @@ const PasskeyDeleteDialog = () => {
                 </CredenzaHeader>
 
                 <CredenzaFooter className={'mt-4'}>
-                    <Button variant={'outline'} onClick={() => closeModal()}>
-                        Cancel
-                    </Button>
+                    <CredenzaTrigger asChild>
+                        <Button variant={'outline'}>Cancel</Button>
+                    </CredenzaTrigger>
                     <Button
                         loading={state.loading}
                         variant={'destructive'}

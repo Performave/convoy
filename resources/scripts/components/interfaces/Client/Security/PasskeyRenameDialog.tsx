@@ -19,6 +19,7 @@ import {
     CredenzaFooter,
     CredenzaHeader,
     CredenzaTitle,
+    CredenzaTrigger,
 } from '@/components/ui/Credenza'
 import { Form, FormButton } from '@/components/ui/Form'
 import { InputForm } from '@/components/ui/Forms'
@@ -40,7 +41,7 @@ const PasskeyRenameDialog = () => {
     const form = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
-            name: passkey?.name,
+            name: passkey?.name ?? '',
         },
     })
 
@@ -57,15 +58,13 @@ const PasskeyRenameDialog = () => {
 
         await mutate(getPasskeysSWRKey())
 
-        closeModal()
+        closeModal('rename')
     }
 
     return (
         <Credenza
             open={isRenameDialogOpen}
-            onOpenChange={open => {
-                if (!open) closeModal()
-            }}
+            onOpenChange={open => !open && closeModal('rename')}
         >
             <CredenzaContent className={'max-h-[50vh]'}>
                 <CredenzaHeader className={'overflow-x-hidden'}>
@@ -83,13 +82,11 @@ const PasskeyRenameDialog = () => {
                             <InputForm name={'name'} label={'Name'} />
                         </CredenzaBody>
                         <CredenzaFooter className={'mt-4'}>
-                            <Button
-                                variant={'outline'}
-                                onClick={() => closeModal()}
-                                type={'button'}
-                            >
-                                Cancel
-                            </Button>
+                            <CredenzaTrigger asChild>
+                                <Button variant={'outline'} type={'button'}>
+                                    Cancel
+                                </Button>
+                            </CredenzaTrigger>
                             <FormButton>Confirm</FormButton>
                         </CredenzaFooter>
                     </form>

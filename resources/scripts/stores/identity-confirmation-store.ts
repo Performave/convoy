@@ -1,23 +1,44 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-interface IdentityState {
-    lastConfirmed: number | null // Stores the timestamp of the last confirmation
-    confirmIdentity: () => void // Updates the timestamp
-    isIdentityValid: (expiryTime: number) => boolean // Checks if confirmation is valid
+
+const EXPIRY_TIME = 1000 * 60 * 5 // 5 minutes
+
+export enum ConfirmationType {
+    Password = 'PASSWORD',
+    Passkey = 'PASSKEY',
 }
 
-export const useIdentityConfirmationStore = create<IdentityState>(
-    (set, get) => ({
-        lastConfirmed: null,
-        confirmIdentity: () => set({ lastConfirmed: Date.now() }),
-        isIdentityValid: expiryTime => {
-            const lastConfirmed = get().lastConfirmed
-            return (
-                lastConfirmed !== null &&
-                Date.now() - lastConfirmed <= expiryTime
-            )
-        },
-    })
+interface IdentityState {
+    confirmationType: ConfirmationType
+    lastConfirmed: number | null // Stores the timestamp of the last confirmation
+    confirmIdentity: (type: ConfirmationType) => void // Updates the timestamp
+    isIdentityValid: () => boolean // Checks if confirmation is valid
+}
+
+export const useIdentityConfirmationStore = create(
+    persist<IdentityState>(
+        (set, get) => ({
+            confirmationType: ConfirmationType.Password,
+            lastConfirmed: null,
+            confirmIdentity: type =>
+                set({ confirmationType: type, lastConfirmed: Date.now() }),
+            isIdentityValid: () => {
+                const lastConfirmed = get().lastConfirmed
+                return (
+                    lastConfirmed !== null &&
+                    Date.now() - lastConfirmed <= EXPIRY_TIME
+                )
+            },
+        }),
+        {
+            name: 'identity-confirmation-store',
+            // @ts-expect-error
+            partialize: state => ({
+                confirmationType: state.confirmationType,
+            }),
+        }
+    )
 )
 
 export default useIdentityConfirmationStore

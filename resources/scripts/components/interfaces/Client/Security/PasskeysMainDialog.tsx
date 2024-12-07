@@ -60,11 +60,16 @@ const PasskeysContainer = () => {
         }
     })
 
+    const handleOpenChange = (open: boolean) => {
+        if (open) {
+            openModal('main')
+        } else {
+            closeModal('main')
+        }
+    }
+
     return (
-        <Credenza
-            open={isMainDialogOpen}
-            onOpenChange={open => (open ? openModal('main') : closeModal())}
-        >
+        <Credenza open={isMainDialogOpen} onOpenChange={handleOpenChange}>
             <CredenzaTrigger asChild>
                 <AuthSetting
                     title={'Passkeys'}
