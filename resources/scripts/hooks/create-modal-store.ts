@@ -7,6 +7,7 @@ export interface ModalState<ModalData, ModalIdentifier extends string> {
     openModal: (modal: ModalIdentifier, data?: ModalData) => void
     closeModal: (modal: ModalIdentifier) => void
     backOutFromMiddleware: (middlewareId: ModalIdentifier) => void
+    pushToQueue: (modal: ModalIdentifier) => void
 }
 
 export interface ModalConfig<ModalIdentifier extends string> {
@@ -119,6 +120,17 @@ const createModalStore = <ModalData, ModalIdentifier extends string>(
                     }
                 })
             }, transitionDelay)
+        },
+        pushToQueue: modal => {
+            set(state => {
+                const queue = [...state.modalQueue]
+                if (queue.length >= 2) {
+                    queue.splice(queue.length - 1, 0, modal)
+                } else {
+                    queue.push(modal)
+                }
+                return { modalQueue: queue }
+            })
         },
     }))
 }

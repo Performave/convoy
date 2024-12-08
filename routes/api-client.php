@@ -5,9 +5,7 @@ use App\Http\Middleware\Activity\ServerSubject;
 use App\Http\Middleware\Client\Server\AuthenticateServerAccess;
 use App\Http\Middleware\RequireIdentityConfirmation;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
 use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
-use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
 use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
 use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
@@ -18,29 +16,28 @@ Route::prefix('/account')->group(function () {
     Route::prefix('/passkeys')
         ->middleware(RequireIdentityConfirmation::class)
         ->group(function () {
-            Route::get('/', [Client\PasskeyController::class, 'index'])->name('passkeys.index');
-            Route::get('/registration-options', [Client\PasskeyController::class, 'create'])->name('passkeys.create');
-            Route::post('/verify-registration', [Client\PasskeyController::class, 'store'])->name('passkeys.store');
+            Route::get('/', [Client\PasskeyController::class, 'index']);
+            Route::get('/registration-options', [Client\PasskeyController::class, 'create']);
+            Route::post('/verify-registration', [Client\PasskeyController::class, 'store']);
 
             Route::middleware('can:update,passkey')->group(function () {
-                Route::post('/{passkey}/rename', [Client\PasskeyController::class, 'rename'])->name('passkeys.rename');
-                Route::delete('/{passkey}', [Client\PasskeyController::class, 'destroy'])->name('passkeys.destroy');
+                Route::post('/{passkey}/rename', [Client\PasskeyController::class, 'rename']);
+                Route::delete('/{passkey}', [Client\PasskeyController::class, 'destroy']);
             });
         });
 
-    Route::prefix('/authenticator')->group(function () {
-        Route::post('/generate-challenge', [TwoFactorAuthenticatedSessionController::class, 'store']);
-
-        Route::middleware('password.confirm')->group(function () {
+    Route::get('/authenticator/status', Client\AuthenticatorStatusController::class);
+    Route::prefix('/authenticator')
+        ->middleware(RequireIdentityConfirmation::class)
+        ->group(function () {
             Route::post('/enable', [TwoFactorAuthenticationController::class, 'store']);
             Route::post('/disable', [TwoFactorAuthenticationController::class, 'destroy']);
-            Route::post('/confirm', [ConfirmedTwoFactorAuthenticationController::class, 'store']);
+            //Route::post('/confirm', [ConfirmedTwoFactorAuthenticationController::class, 'store']);
             Route::get('/qr-code', [TwoFactorQrCodeController::class, 'show']);
             Route::get('/secret-key', [TwoFactorSecretKeyController::class, 'show']);
             Route::get('/recovery-codes', [RecoveryCodeController::class, 'index']);
             Route::post('/recovery-codes/regenerate', [RecoveryCodeController::class, 'store']);
         });
-    });
 });
 
 Route::get('/servers', [Client\Servers\ServerController::class, 'index']);
