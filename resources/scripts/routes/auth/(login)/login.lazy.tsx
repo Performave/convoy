@@ -18,7 +18,7 @@ import { Form, FormButton } from '@/components/ui/Form'
 import { InputForm } from '@/components/ui/Forms'
 
 
-export const Route = createLazyFileRoute('/auth/login')({
+export const Route = createLazyFileRoute('/auth/(login)/login')({
     component: Login,
 })
 
@@ -30,7 +30,7 @@ const schema = z.object({
 function Login() {
     const { redirect } = Route.useSearch()
     const navigate = Route.useNavigate()
-    const form = useForm<z.infer<typeof schema>>({
+    const form = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
             email: '',
@@ -40,7 +40,18 @@ function Login() {
 
     const submit = async (data: z.infer<typeof schema>) => {
         try {
-            await login(data)
+            const response = await login(data)
+
+            if (response.twoFactor) {
+                await navigate({
+                    to: '/auth/login/authenticator',
+                    search: {
+                        redirect: redirect ? redirect : undefined,
+                    },
+                })
+
+                return
+            }
 
             await navigate({
                 // @ts-expect-error

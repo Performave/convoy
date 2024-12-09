@@ -14,12 +14,12 @@ import { Button } from '@/components/ui/Button'
 import {
     Credenza,
     CredenzaBody,
+    CredenzaClose,
     CredenzaContent,
     CredenzaDescription,
     CredenzaFooter,
     CredenzaHeader,
     CredenzaTitle,
-    CredenzaTrigger,
 } from '@/components/ui/Credenza'
 import { Form, FormButton } from '@/components/ui/Form'
 import { InputForm } from '@/components/ui/Forms'
@@ -82,11 +82,11 @@ const PasskeyRenameDialog = () => {
                             <InputForm name={'name'} label={'Name'} />
                         </CredenzaBody>
                         <CredenzaFooter className={'mt-4'}>
-                            <CredenzaTrigger asChild>
+                            <CredenzaClose asChild>
                                 <Button variant={'outline'} type={'button'}>
                                     Cancel
                                 </Button>
-                            </CredenzaTrigger>
+                            </CredenzaClose>
                             <FormButton>Confirm</FormButton>
                         </CredenzaFooter>
                     </form>

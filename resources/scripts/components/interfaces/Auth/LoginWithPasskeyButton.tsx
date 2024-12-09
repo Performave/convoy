@@ -1,3 +1,4 @@
+import useAsyncFunction from '@/hooks/use-async-function.ts'
 import { startAuthentication } from '@simplewebauthn/browser'
 import {
     AuthenticationResponseJSON,
@@ -5,7 +6,6 @@ import {
 } from '@simplewebauthn/types'
 import { IconKey } from '@tabler/icons-react'
 import { useNavigate } from '@tanstack/react-router'
-import { useAsyncFn } from 'react-use'
 
 import getPasskeyAuthenticationOptions from '@/api/auth/getPasskeyAuthenticationOptions.ts'
 import verifyPasskeyAuthentication from '@/api/auth/verifyPasskeyAuthentication.ts'
@@ -21,7 +21,7 @@ interface Props {
 const LoginWithPasskeyButton = ({ redirectTo }: Props) => {
     const navigate = useNavigate()
 
-    const [state, login] = useAsyncFn(async () => {
+    const [state, login] = useAsyncFunction(async () => {
         let optionsJSON: PublicKeyCredentialRequestOptionsJSON
         try {
             optionsJSON = await getPasskeyAuthenticationOptions()

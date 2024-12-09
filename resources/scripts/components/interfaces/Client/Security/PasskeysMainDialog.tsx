@@ -1,5 +1,5 @@
+import useAsyncFunction from '@/hooks/use-async-function.ts'
 import { startRegistration } from '@simplewebauthn/browser'
-import { useAsyncFn } from 'react-use'
 import { useShallow } from 'zustand/react/shallow'
 
 import getRegistrationOptions from '@/api/account/passkeys/getRegistrationOptions.ts'
@@ -33,7 +33,7 @@ const PasskeysContainer = () => {
         ])
     )
 
-    const [state, register] = useAsyncFn(async () => {
+    const [state, register] = useAsyncFunction(async () => {
         try {
             const optionsJSON = await getRegistrationOptions()
 

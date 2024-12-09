@@ -17,6 +17,7 @@ import {
     CredenzaTitle,
 } from '@/components/ui/Credenza'
 import Skeleton from '@/components/ui/Skeleton.tsx'
+import { toast } from '@/components/ui/Toast'
 
 const AuthenticatorRecoveryCodesDialog = () => {
     const [open, closeModal] = useAuthenticatorModalStore(
@@ -33,6 +34,16 @@ const AuthenticatorRecoveryCodesDialog = () => {
             mutate()
         }
     }, [open])
+
+    const copy = async () => {
+        if (!codes) {
+            return
+        }
+
+        await navigator.clipboard.writeText(codes.join('\n'))
+
+        toast({ description: 'Copied recovery codes to clipboard' })
+    }
 
     return (
         <Credenza
@@ -62,6 +73,9 @@ const AuthenticatorRecoveryCodesDialog = () => {
                 </CredenzaBody>
 
                 <CredenzaFooter>
+                    <Button variant={'outline'} onClick={copy}>
+                        Copy codes
+                    </Button>
                     <CredenzaClose asChild>
                         <Button variant={'destructive'}>
                             I saved my codes

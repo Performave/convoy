@@ -1,5 +1,5 @@
+import useAsyncFunction from '@/hooks/use-async-function.ts'
 import { Passkey } from '@/types/passkey.ts'
-import { useAsyncFn } from 'react-use'
 import { mutate } from 'swr'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -29,25 +29,27 @@ const PasskeyDeleteDialog = () => {
         ])
     )
 
-    const [state, submit] = useAsyncFn(async (currentPasskey: Passkey) => {
-        try {
-            await deletePasskey(currentPasskey.id)
+    const [state, submit] = useAsyncFunction(
+        async (currentPasskey: Passkey) => {
+            try {
+                await deletePasskey(currentPasskey.id)
 
-            toast({
-                description: 'Passkey deleted',
-            })
+                toast({
+                    description: 'Passkey deleted',
+                })
 
-            await mutate(getPasskeysSWRKey())
+                await mutate(getPasskeysSWRKey())
 
-            closeModal('delete')
-        } catch (e) {
-            toast({
-                description: 'Deletion failed',
-                variant: 'destructive',
-            })
-            throw e
+                closeModal('delete')
+            } catch (e) {
+                toast({
+                    description: 'Deletion failed',
+                    variant: 'destructive',
+                })
+                throw e
+            }
         }
-    })
+    )
 
     return (
         <Credenza

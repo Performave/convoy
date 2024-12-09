@@ -5,11 +5,19 @@ interface LoginParams {
     password: string
 }
 
+interface LoginResponse {
+    twoFactor: boolean
+}
+
 const login = async ({ email, password }: LoginParams) => {
-    await axios.post('/api/auth/login', {
+    const { data } = await axios.post('/api/auth/login', {
         email,
         password,
     })
+
+    return {
+        twoFactor: Boolean(data?.two_factor),
+    } satisfies LoginResponse
 }
 
 export default login

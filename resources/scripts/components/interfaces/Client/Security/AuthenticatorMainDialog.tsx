@@ -4,14 +4,11 @@ import AuthSetting from '@/components/interfaces/Client/Security/AuthSetting.tsx
 import { useAuthenticatorModalStore } from '@/components/interfaces/Client/Security/AuthenticatorContainer.tsx'
 import AuthenticatorStatus from '@/components/interfaces/Client/Security/AuthenticatorStatus.tsx'
 
-import { Button } from '@/components/ui/Button'
 import {
     Credenza,
     CredenzaBody,
-    CredenzaClose,
     CredenzaContent,
     CredenzaDescription,
-    CredenzaFooter,
     CredenzaHeader,
     CredenzaTitle,
     CredenzaTrigger,
@@ -52,15 +49,9 @@ const AuthenticatorMainDialog = () => {
                     </CredenzaDescription>
                 </CredenzaHeader>
 
-                <CredenzaBody>
+                <CredenzaBody className={'pb-4 md:pb-0'}>
                     <AuthenticatorStatus />
                 </CredenzaBody>
-
-                <CredenzaFooter>
-                    <CredenzaClose asChild>
-                        <Button variant={'outline'}>Close</Button>
-                    </CredenzaClose>
-                </CredenzaFooter>
             </CredenzaContent>
         </Credenza>
     )

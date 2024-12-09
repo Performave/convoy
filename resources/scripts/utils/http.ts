@@ -57,8 +57,8 @@ export interface QueryBuilderParams<
     page?: number
     filters?: {
         [K in FilterKeys]?:
-            | QueryBuilderFilterValue
-            | Readonly<QueryBuilderFilterValue[]>
+        | QueryBuilderFilterValue
+        | Readonly<QueryBuilderFilterValue[]>
     }
     sorts?: {
         [K in SortKeys]?: -1 | 0 | 1 | 'asc' | 'desc' | null
@@ -81,7 +81,7 @@ export const withQueryBuilderParams = (
 
             return !value || value === ''
                 ? obj
-                : { ...obj, [`filter[${key}]`]: value }
+                : {...obj, [`filter[${key}]`]: value}
         },
         {} as NonNullable<QueryBuilderParams['filters']>
     )
@@ -113,7 +113,6 @@ interface ValidationErrorResponse {
     errors: Record<string, string[]>
 }
 
-// Define a type for the expected error response structure
 interface ErrorWithResponse {
     response: {
         status: number
@@ -121,11 +120,25 @@ interface ErrorWithResponse {
     }
 }
 
+/**
+ * Converts snake_case string to camelCase.
+ */
+const toCamelCase = (str: string): string =>
+    str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+
+/**
+ * Handles form validation errors by mapping snake_case fields to camelCase and setting errors.
+ *
+ * @param error - The error object to handle.
+ * @param setError - The `setError` function from `react-hook-form`.
+ * @param customMapping - An optional object to provide custom field name mappings.
+ * @returns A boolean indicating if the error was handled.
+ */
 export const handleFormErrors = <T extends FieldValues>(
     error: unknown,
-    setError: UseFormSetError<T>
+    setError: UseFormSetError<T>,
+    customMapping: Record<string, string> = {}
 ): boolean => {
-    // Check if the error has the expected response structure
     if (
         error &&
         typeof error === 'object' &&
@@ -135,13 +148,13 @@ export const handleFormErrors = <T extends FieldValues>(
         const responseData = (error as ErrorWithResponse).response.data
 
         if (responseData && responseData.errors) {
-            // Loop through the errors and set the first error message for each field
-            for (const [field, messages] of Object.entries(
-                responseData.errors
-            )) {
+            for (const [field, messages] of Object.entries(responseData.errors)) {
                 if (messages.length > 0) {
+                    // Use custom mapping if available, otherwise convert to camelCase
+                    const mappedField = customMapping[field] || toCamelCase(field)
+
                     // @ts-ignore
-                    setError(field as keyof T, {
+                    setError(mappedField as keyof T, {
                         type: 'manual',
                         message: messages[0],
                     })
