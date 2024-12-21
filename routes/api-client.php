@@ -13,6 +13,8 @@ use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
 Route::get('/user', Client\SessionController::class);
 
 Route::prefix('/account')->group(function () {
+    Route::put('/password', [Client\PasswordController::class, 'update']);
+
     Route::prefix('/passkeys')
         ->middleware(RequireIdentityConfirmation::class)
         ->group(function () {

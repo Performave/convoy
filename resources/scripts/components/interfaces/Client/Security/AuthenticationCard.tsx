@@ -1,6 +1,6 @@
-import AuthSetting from '@/components/interfaces/Client/Security/AuthSetting.tsx'
 import AuthenticatorContainer from '@/components/interfaces/Client/Security/AuthenticatorContainer.tsx'
 import PasskeysContainer from '@/components/interfaces/Client/Security/PasskeysContainer.tsx'
+import PasswordChangeDialog from '@/components/interfaces/Client/Security/PasswordChangeDialog.tsx'
 
 import {
     Card,
@@ -22,11 +22,7 @@ const AuthenticationCard = () => {
                 </CardDescription>
             </CardHeader>
             <CardContent className={'space-y-3'}>
-                <AuthSetting
-                    title={'Password'}
-                    description={'Change your account password'}
-                    onClick={() => {}}
-                />
+                <PasswordChangeDialog />
                 <Separator />
                 <AuthenticatorContainer />
                 <Separator />
