@@ -9,7 +9,6 @@ import NotFound from '@/components/ui/Navigation/NotFound.tsx'
 
 import { routeTree } from './routeTree.gen'
 
-
 const router = createRouter({
     routeTree,
     defaultNotFoundComponent: NotFound,
@@ -18,6 +17,10 @@ const router = createRouter({
 declare module '@tanstack/react-router' {
     interface Register {
         router: typeof router
+    }
+
+    interface StaticDataRouteOption {
+        title?: string
     }
 }
 

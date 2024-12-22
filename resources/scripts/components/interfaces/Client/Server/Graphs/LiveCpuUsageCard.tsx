@@ -27,7 +27,7 @@ const LiveCpuUsageCard = () => {
     }, [state])
 
     return (
-        <Card className={'col-span-1 @md:col-span-2 @xl:col-span-1'}>
+        <Card className={'col-span-1 @md:col-span-2'}>
             <CardHeader>
                 <CardTitle className={'flex items-center'}>
                     Live CPU Usage <LiveIndicator className={'ml-3'} />

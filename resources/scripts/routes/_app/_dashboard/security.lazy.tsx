@@ -6,18 +6,15 @@ import SessionListCard from '@/components/interfaces/Client/Security/SessionList
 
 import { Heading } from '@/components/ui/Typography'
 
-
 export const Route = createLazyFileRoute('/_app/_dashboard/security')({
     component: () => (
         <>
             <Heading>Security</Heading>
-            <div className={'@md:grid-cols-2 grid grid-cols-1 gap-5'}>
+            <div className={'grid grid-cols-1 gap-5 @md:grid-cols-2'}>
                 <KeychainCard />
                 <AuthenticationCard />
                 <SessionListCard />
             </div>
         </>
     ),
-    // @ts-expect-error
-    meta: () => [{ title: 'Security' }],
 })

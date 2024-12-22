@@ -4,14 +4,12 @@ import {
     IconChevronRight,
     IconSettings,
 } from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
 
-import Logo from '@/components/ui/Branding/Logo.tsx'
 import { Button } from '@/components/ui/Button'
 import { Route } from '@/components/ui/Navigation/Navigation.types.ts'
+import BrandLink from '@/components/ui/Navigation/Sidebar/BrandLink.tsx'
 import SidebarLink from '@/components/ui/Navigation/Sidebar/SidebarLink.tsx'
 import useSidebarStore from '@/components/ui/Navigation/Sidebar/use-sidebar-store.ts'
-
 
 interface Props {
     routes: Route[]
@@ -50,16 +48,7 @@ const Sidebar = ({ routes }: Props) => {
                 onMouseLeave={() => setExpandedIfNotKeepExpanded(false)}
             >
                 <nav className='flex flex-col justify-start gap-2 px-2 sm:py-5'>
-                    <Link to={'/'} className='mx-1'>
-                        <span
-                            className={
-                                'grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground'
-                            }
-                        >
-                            <Logo className='h-4 w-4' />
-                        </span>
-                        <span className='sr-only'>Convoy Panel</span>
-                    </Link>
+                    <BrandLink />
 
                     {routes.map(route => (
                         <SidebarLink

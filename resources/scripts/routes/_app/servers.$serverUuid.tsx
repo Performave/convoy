@@ -84,5 +84,7 @@ export const Route = createFileRoute('/_app/servers/$serverUuid')({
             </AppLayout>
         )
     },
-    meta: () => [{ title: 'Dashboard' }],
+    staticData: {
+        title: 'Dashboard',
+    },
 })

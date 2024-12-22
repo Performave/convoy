@@ -5,12 +5,9 @@ import SnapshotView from '@/components/interfaces/Client/Server/Snapshots/Snapsh
 
 import { Heading } from '@/components/ui/Typography'
 
-
 export const Route = createLazyFileRoute('/_app/servers/$serverUuid/snapshots')(
     {
         component: ServerSnapshots,
-        // @ts-ignore
-        meta: () => [{ title: 'Snapshots' }],
     }
 )
 

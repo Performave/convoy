@@ -17,7 +17,6 @@ import {
 import { Form, FormButton } from '@/components/ui/Form'
 import { InputForm } from '@/components/ui/Forms'
 
-
 export const Route = createLazyFileRoute('/auth/(login)/login')({
     component: Login,
 })
@@ -54,7 +53,6 @@ function Login() {
             }
 
             await navigate({
-                // @ts-expect-error
                 to: redirect ? `/${redirect.slice(1)}` : '/',
             })
         } catch {

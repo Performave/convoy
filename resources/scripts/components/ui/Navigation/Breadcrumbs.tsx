@@ -11,16 +11,20 @@ import {
 } from '@/components/ui/Breadcrumb'
 
 const Breadcrumbs = () => {
-    const breadcrumbs = useRouterState({
+    const matches = useRouterState({
         select: state => {
             return state.matches
-                .map(match => ({
-                    title: match.meta?.find(tag => tag.title)!.title as string,
-                    path: match.pathname,
-                }))
-                .filter(crumb => Boolean(crumb.title))
         },
     })
+
+    const breadcrumbs = matches
+        .filter(match => match.staticData?.title)
+        .map(match => {
+            return {
+                title: match.staticData.title as string,
+                path: match.pathname,
+            }
+        })
 
     return (
         <Breadcrumb className='hidden md:flex'>

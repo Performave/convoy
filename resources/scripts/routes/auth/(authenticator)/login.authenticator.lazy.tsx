@@ -32,7 +32,6 @@ import {
 } from '@/components/ui/InputOTP'
 import { toast } from '@/components/ui/Toast'
 
-
 export const Route = createLazyFileRoute(
     '/auth/(authenticator)/login/authenticator'
 )({
@@ -80,7 +79,6 @@ function Authenticator() {
             }
 
             await navigate({
-                // @ts-expect-error
                 to: redirect ? `/${redirect.slice(1)}` : '/',
             })
         } catch (e) {

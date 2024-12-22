@@ -5,5 +5,7 @@ export const Route = createFileRoute(
     '/auth/(authenticator)/login/authenticator'
 )({
     validateSearch: searchSchema,
-    meta: () => [{ title: '2FA Required' }],
+    staticData: {
+        title: '2FA Required',
+    },
 })
