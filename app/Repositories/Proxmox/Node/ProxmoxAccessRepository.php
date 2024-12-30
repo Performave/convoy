@@ -21,7 +21,16 @@ class ProxmoxAccessRepository extends ProxmoxRepository
             ->get('/api2/json/access/users')
             ->json();
 
-        $users = array_map(fn ($user) => UserData::fromRaw($user), $this->getData($response));
+        $users = array_filter($this->getData($response), function ($user) {
+            try {
+                RealmType::from($user['realm-type']);
+                return true;
+            } catch (\ValueError $e) {
+                return false;
+            }
+        });
+
+        $users = array_map(fn ($user) => UserData::fromRaw($user), $users);
 
         return UserData::collection($users);
     }
