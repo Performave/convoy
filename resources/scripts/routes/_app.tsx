@@ -5,9 +5,9 @@ import { z } from 'zod'
 
 import { cacheUser, getKey } from '@/api/auth/use-user-swr.ts'
 
-
 const searchSchema = z.object({
     page: z.number().optional(),
+    perPage: z.number().optional(),
 })
 
 export const Route = createFileRoute('/_app')({
