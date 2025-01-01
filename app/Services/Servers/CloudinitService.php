@@ -9,6 +9,9 @@ use App\Models\Server;
 use App\Repositories\Proxmox\Server\ProxmoxConfigRepository;
 use Illuminate\Support\Arr;
 
+use function collect;
+use function explode;
+
 /**
  * Class SnapshotService
  */
@@ -46,9 +49,9 @@ class CloudinitService
 
     public function getNameservers(Server $server)
     {
-        $nameservers = collect($this->configRepository->setServer($server)->getConfig())->where('key', '=', 'nameserver')->firstOrFail()['value'];
+        $nameservers = collect($this->configRepository->setServer($server)->getConfig())->where('key', '=', 'nameserver')->first();
 
-        return $nameservers ? explode(' ', $nameservers) : [];
+        return $nameservers ? explode(' ', $nameservers['value']) : [];
     }
 
     public function updateNameservers(Server $server, array $nameservers)
