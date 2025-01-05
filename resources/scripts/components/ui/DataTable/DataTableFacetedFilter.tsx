@@ -1,7 +1,7 @@
+import { Option } from '@/types/data-table.ts'
 import { cn } from '@/utils'
 import { IconCheck, IconCirclePlus } from '@tabler/icons-react'
 import { Column } from '@tanstack/react-table'
-import * as React from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -21,16 +21,10 @@ import {
 } from '@/components/ui/Popover'
 import { Separator } from '@/components/ui/Separator'
 
-export interface FacetedFilterOption {
-    label: string
-    value: string
-    icon?: React.ComponentType<{ className?: string }>
-}
-
 interface DataTableFacetedFilterProps<TData, TValue> {
     column?: Column<TData, TValue>
     title?: string
-    options: FacetedFilterOption[]
+    options: Option[]
 }
 
 const DataTableFacetedFilter = <TData, TValue>({

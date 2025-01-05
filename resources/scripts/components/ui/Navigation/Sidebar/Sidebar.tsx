@@ -41,8 +41,9 @@ const Sidebar = ({ routes }: Props) => {
             <div
                 className={cn(
                     'no-scrollbar transition-width fixed inset-y-0 left-0 z-50 flex w-14 flex-col overflow-y-auto border-r bg-background duration-200',
-                    'group-data-[state=expanded]:w-[13rem] group-data-[state=expanded]:shadow-xl',
-                    'group-data-[keep-expanded=true]:w-[13rem] group-data-[keep-expanded=true]:shadow-none'
+                    'group-data-[state=expanded]:w-[13rem]',
+                    'group-data-[keep-expanded=true]:w-[13rem]',
+                    expanded && !keepExpanded ? 'shadow-xl' : null
                 )}
                 onMouseEnter={() => setExpandedIfNotKeepExpanded(true)}
                 onMouseLeave={() => setExpandedIfNotKeepExpanded(false)}

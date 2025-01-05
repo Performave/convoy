@@ -2,30 +2,32 @@ import { useDebouncedValue } from '@mantine/hooks'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
-const useQueryState = <T>(defaultState: T, debounceDelay = 300) => {
+function useQueryState<T>(key: string, defaultValue: T, debounceDelay = 300) {
     const navigate = useNavigate()
-    const queryState = useSearch({
-        strict: false,
-    })
+    const queryState = useSearch({ strict: false })
 
-    const [state, setState] = useState<T>({
-        ...defaultState,
-        ...queryState,
-    })
+    // Initialize from query or default
+    const [state, setState] = useState<T>(
+        (queryState[key] as T) ?? defaultValue
+    )
 
-    const debouncedState = useDebouncedValue(state, debounceDelay)
+    const [debouncedState] = useDebouncedValue(state, debounceDelay)
 
     useEffect(() => {
         navigate({
             // @ts-expect-error
-            search: prev => ({
-                ...prev,
-                ...debouncedState,
-            }),
+            search: prev => {
+                // Clear from URL if value is default
+                if (debouncedState === defaultValue) {
+                    const { [key]: _, ...rest } = prev
+                    return rest
+                }
+                return { ...prev, [key]: debouncedState }
+            },
         })
-    }, [debouncedState, navigate])
+    }, [debouncedState, navigate, key, defaultValue])
 
-    return [state, setState] as const
+    return [state, setState, debouncedState] as const
 }
 
 export default useQueryState

@@ -14,16 +14,6 @@ const router = createRouter({
     defaultNotFoundComponent: NotFound,
 })
 
-declare module '@tanstack/react-router' {
-    interface Register {
-        router: typeof router
-    }
-
-    interface StaticDataRouteOption {
-        title?: string
-    }
-}
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
         <ThemeProvider storageKey='theme'>

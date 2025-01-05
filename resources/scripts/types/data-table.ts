@@ -1,7 +1,7 @@
 import { PaginatedResult } from '@/utils/http.ts'
 import { TableOptions } from '@tanstack/react-table'
 
-export interface UseDataTableProps<TData>
+export interface DataTableProps<TData>
     extends Omit<
         TableOptions<TData>,
         | 'data'
@@ -12,7 +12,7 @@ export interface UseDataTableProps<TData>
         | 'manualPagination'
         | 'manualSorting'
     > {
-    data: TData[] | PaginatedResult<TData>
+    data: TData[] | PaginatedResult<TData> | null | undefined
 
     /**
      * Defines filter fields for the table. Supports both dynamic faceted filters and search filters.
@@ -43,12 +43,18 @@ export interface UseDataTableProps<TData>
      */
     filterFields?: DataTableFilterField<TData>[]
 
-    /**
-     * Clear URL query key-value pair when state is set to default.
-     * Keep URL meaning consistent when defaults change.
-     * @default false
-     */
-    clearOnDefault?: boolean
+    skeletonRows?: number
+    toolbar?: boolean
+    searchable?: boolean
+    query?: string
+    setQuery?: (query: string) => void
+    paginated?: boolean
+    page?: number
+    setPage?: (page: number) => void
+    perPage?: number
+    setPerPage?: (perPage: number) => void
+    perPageOptions?: number[]
+    showPerPageOptions?: boolean
 }
 
 export interface DataTableFilterField<TData> {

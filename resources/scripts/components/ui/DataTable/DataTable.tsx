@@ -1,24 +1,20 @@
 import { useControllableState } from '@/hooks/use-controllable-state.ts'
 import useTransientValue from '@/hooks/use-transient-value.ts'
-import { PaginatedResult } from '@/utils/http.ts'
+import { DataTableProps } from '@/types/data-table.ts'
+import { getCommonPinningStyles } from '@/utils/data-table.ts'
 import {
-    ColumnDef,
     ColumnFiltersState,
-    PaginationOptions,
     PaginationState,
     SortingState,
+    Updater,
     VisibilityState,
     flexRender,
     getCoreRowModel,
-    getFacetedRowModel,
-    getFacetedUniqueValues,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import * as React from 'react'
+import { useState } from 'react'
 
+import Skeleton from '@/components/ui/Skeleton.tsx'
 import {
     Table,
     TableBody,
@@ -29,71 +25,80 @@ import {
 } from '@/components/ui/Table'
 
 import DataTablePagination from './DataTablePagination'
-import DataTableToolbar, { FilterConfig } from './DataTableToolbar.tsx'
+import DataTableToolbar from './DataTableToolbar.tsx'
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[] | PaginatedResult<TData>
-    query?: string
-    setQuery?: (query: string) => void
-    pagination?: PaginationState
-    onPaginationChange?: PaginationOptions['onPaginationChange']
-    pageSizeOptions?: number[]
-    showPageSizeOptions?: boolean
-    filters?: FilterConfig[]
-    searchableColumn?: Extract<keyof TData, string>
-    toolbar?: boolean
-    paginated?: boolean
-    manual?: boolean
-}
-
-const DataTable = <TData, TValue>({
-    columns,
+const DataTable = <TData,>({
     data,
-    query,
-    setQuery,
-    pagination: _pagination,
-    onPaginationChange: _onPaginationChange,
-    pageSizeOptions,
-    showPageSizeOptions,
-    filters,
-    searchableColumn,
+    initialState,
+    filterFields,
+    skeletonRows = 10,
+    perPageOptions,
+    showPerPageOptions,
     toolbar,
+    searchable,
+    query: _query,
+    setQuery: _setQuery,
     paginated,
-    manual = true,
-}: DataTableProps<TData, TValue>) => {
-    const [pagination, setPagination] = useControllableState({
-        prop: _pagination,
-        defaultProp: {
-            pageIndex: 1,
-            pageSize: 50,
-        },
-        onChange: _onPaginationChange,
+    page: _page,
+    setPage: _setPage,
+    perPage: _perPage,
+    setPerPage: _setPerPage,
+    ...props
+}: DataTableProps<TData>) => {
+    const [query, setQuery] = useControllableState({
+        prop: _query,
+        defaultProp: '',
+        onChange: _setQuery,
     })
 
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const resolvedData = Array.isArray(data) ? data : data.items
-    const endpointPaginationMeta = useTransientValue(
-        !Array.isArray(data) ? data.pagination : null
-    )
+    const [page, setPage] = useControllableState({
+        prop: _page,
+        defaultProp: 1,
+        onChange: _setPage,
+    })
 
-    const handlePaginationChange: PaginationOptions['onPaginationChange'] =
-        updateOrValue => {
-            const updatedPagination =
-                updateOrValue instanceof Function
-                    ? updateOrValue(pagination!)
-                    : updateOrValue
-            setPagination(updatedPagination)
-        }
+    const [perPage, setPerPage] = useControllableState({
+        prop: _perPage,
+        defaultProp: 20,
+        onChange: _setPerPage,
+    })
+
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [rowSelection, setRowSelection] = useState({})
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {}
+    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+
+    const resolvedData = !data ? [] : Array.isArray(data) ? data : data.items
+    const pageCount =
+        useTransientValue(
+            !Array.isArray(data) ? data?.pagination.totalPages : null
+        ) ?? -1
+
+    const pagination: PaginationState = {
+        pageIndex: page! - 1,
+        pageSize: perPage!,
+    }
+
+    const onPaginationChange = (updaterOrValue: Updater<PaginationState>) => {
+        const updatedPagination =
+            updaterOrValue instanceof Function
+                ? updaterOrValue(pagination!)
+                : updaterOrValue
+
+        setPage(updatedPagination.pageIndex + 1)
+        setPerPage(updatedPagination.pageSize)
+    }
 
     const table = useReactTable({
+        ...props,
         data: resolvedData,
-        columns,
+        pageCount,
+        initialState: {
+            columnPinning: { right: ['actions'] },
+            ...initialState,
+        },
         state: {
             sorting,
             columnVisibility,
@@ -103,32 +108,26 @@ const DataTable = <TData, TValue>({
             pagination,
         },
         autoResetPageIndex: true,
+        getCoreRowModel: getCoreRowModel(),
+        //getPaginationRowModel: getPaginationRowModel(),
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onGlobalFilterChange: setQuery,
-        onPaginationChange: handlePaginationChange,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFacetedRowModel: getFacetedRowModel(),
-        getFacetedUniqueValues: getFacetedUniqueValues(),
-        pageCount: endpointPaginationMeta?.totalPages,
-
-        manualPagination: manual,
-        manualFiltering: manual,
-        manualSorting: manual,
+        onPaginationChange,
+        manualPagination: true,
+        manualSorting: true,
+        manualFiltering: true,
     })
 
     return (
         <div className='space-y-4'>
             {toolbar && (
                 <DataTableToolbar
-                    filters={filters}
-                    searchableColumn={searchableColumn}
+                    filterFields={filterFields}
+                    searchable={searchable}
                     table={table}
                 />
             )}
@@ -142,6 +141,14 @@ const DataTable = <TData, TValue>({
                                         <TableHead
                                             key={header.id}
                                             colSpan={header.colSpan}
+                                            style={{
+                                                ...getCommonPinningStyles({
+                                                    column: header.column,
+                                                }),
+                                                textAlign:
+                                                    header.column.columnDef.meta
+                                                        ?.align ?? 'left',
+                                            }}
                                         >
                                             {header.isPlaceholder
                                                 ? null
@@ -157,33 +164,89 @@ const DataTable = <TData, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map(row => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={
-                                        row.getIsSelected() && 'selected'
-                                    }
-                                >
-                                    {row.getVisibleCells().map(cell => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                        {data ? (
+                            <>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map(row => (
+                                        <TableRow
+                                            key={row.id}
+                                            data-state={
+                                                row.getIsSelected() &&
+                                                'selected'
+                                            }
+                                        >
+                                            {row.getVisibleCells().map(cell => (
+                                                <TableCell
+                                                    key={cell.id}
+                                                    style={{
+                                                        ...getCommonPinningStyles(
+                                                            {
+                                                                column: cell.column,
+                                                            }
+                                                        ),
+                                                        textAlign:
+                                                            cell.column
+                                                                .columnDef.meta
+                                                                ?.align ??
+                                                            'left',
+                                                    }}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef
+                                                            .cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={
+                                                table._getColumnDefs().length
+                                            }
+                                            className='h-24 text-center'
+                                        >
+                                            No results.
                                         </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                                    </TableRow>
+                                )}
+                            </>
                         ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className='h-24 text-center'
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
+                            <>
+                                {Array.from({ length: skeletonRows }).map(
+                                    (_, i) => (
+                                        <TableRow
+                                            key={i}
+                                            className='hover:bg-transparent'
+                                        >
+                                            {table
+                                                .getAllColumns()
+                                                .filter(column =>
+                                                    column.getIsVisible()
+                                                )
+                                                .map(col => (
+                                                    <TableCell
+                                                        key={col.id}
+                                                        style={{
+                                                            width:
+                                                                col.columnDef
+                                                                    .meta
+                                                                    ?.skeletonWidth ??
+                                                                'auto',
+                                                            // minWidth: shrinkZero
+                                                            //     ? cellWidths[j]
+                                                            //     : 'auto',
+                                                        }}
+                                                    >
+                                                        <Skeleton className='h-6 w-full' />
+                                                    </TableCell>
+                                                ))}
+                                        </TableRow>
+                                    )
+                                )}
+                            </>
                         )}
                     </TableBody>
                 </Table>
@@ -191,8 +254,8 @@ const DataTable = <TData, TValue>({
             {paginated && (
                 <DataTablePagination
                     table={table}
-                    pageSizeOptions={pageSizeOptions}
-                    showPageSizeOptions={showPageSizeOptions}
+                    perPageOptions={perPageOptions}
+                    showPerPageOptions={showPerPageOptions}
                 />
             )}
         </div>

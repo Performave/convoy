@@ -1,11 +1,7 @@
-import { IconSearch } from '@tabler/icons-react'
-
-import { Input } from '@/components/ui/Input'
-import AvatarWithDropdown from '@/components/ui/Navigation/AvatarWithDropdown.tsx'
+import Avatar from '@/components/ui/Navigation/Avatar.tsx'
 import Breadcrumbs from '@/components/ui/Navigation/Breadcrumbs.tsx'
 import { Route } from '@/components/ui/Navigation/Navigation.types.ts'
 import SidebarToggle from '@/components/ui/Navigation/SidebarToggle.tsx'
-
 
 interface Props {
     routes: Route[]
@@ -17,14 +13,14 @@ const Header = ({ routes }: Props) => {
             <SidebarToggle routes={routes} />
             <Breadcrumbs />
             <div className='relative ml-auto flex-1 md:grow-0'>
-                <IconSearch className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-                <Input
-                    type='search'
-                    placeholder='Search...'
-                    className='w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]'
-                />
+                {/*<IconSearch className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />*/}
+                {/*<Input*/}
+                {/*    type='search'*/}
+                {/*    placeholder='Search...'*/}
+                {/*    className='w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]'*/}
+                {/*/>*/}
             </div>
-            <AvatarWithDropdown />
+            <Avatar />
         </header>
     )
 }

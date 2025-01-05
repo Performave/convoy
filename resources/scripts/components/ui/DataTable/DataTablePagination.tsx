@@ -17,14 +17,14 @@ import {
 
 interface DataTablePaginationProps<TData> {
     table: Table<TData>
-    pageSizeOptions?: number[]
-    showPageSizeOptions?: boolean
+    perPageOptions?: number[]
+    showPerPageOptions?: boolean
 }
 
 const DataTablePagination = <TData,>({
     table,
-    pageSizeOptions = [10, 20, 30, 40, 50],
-    showPageSizeOptions,
+    perPageOptions = [10, 20, 30, 40, 50],
+    showPerPageOptions,
 }: DataTablePaginationProps<TData>) => {
     return (
         <div className='flex items-center justify-between px-2'>
@@ -33,7 +33,7 @@ const DataTablePagination = <TData,>({
                 {table.getFilteredRowModel().rows.length} row(s) selected.
             </div>
             <div className='flex items-center space-x-6 lg:space-x-8'>
-                {showPageSizeOptions && (
+                {showPerPageOptions && (
                     <div className='flex items-center space-x-2'>
                         <p className='text-sm font-medium'>Rows per page</p>
                         <Select
@@ -50,7 +50,7 @@ const DataTablePagination = <TData,>({
                                 />
                             </SelectTrigger>
                             <SelectContent side='top'>
-                                {pageSizeOptions.map(pageSize => (
+                                {perPageOptions.map(pageSize => (
                                     <SelectItem
                                         key={pageSize}
                                         value={`${pageSize}`}
@@ -74,7 +74,7 @@ const DataTablePagination = <TData,>({
                         disabled={!table.getCanPreviousPage()}
                     >
                         <span className='sr-only'>Go to first page</span>
-                        <IconChevronsLeft />
+                        <IconChevronsLeft className={'size-4'} />
                     </Button>
                     <Button
                         variant='outline'
@@ -83,7 +83,7 @@ const DataTablePagination = <TData,>({
                         disabled={!table.getCanPreviousPage()}
                     >
                         <span className='sr-only'>Go to previous page</span>
-                        <IconChevronLeft />
+                        <IconChevronLeft className={'size-4'} />
                     </Button>
                     <Button
                         variant='outline'
@@ -92,7 +92,7 @@ const DataTablePagination = <TData,>({
                         disabled={!table.getCanNextPage()}
                     >
                         <span className='sr-only'>Go to next page</span>
-                        <IconChevronRight />
+                        <IconChevronRight className={'size-4'} />
                     </Button>
                     <Button
                         variant='outline'
@@ -103,7 +103,7 @@ const DataTablePagination = <TData,>({
                         disabled={!table.getCanNextPage()}
                     >
                         <span className='sr-only'>Go to last page</span>
-                        <IconChevronsRight />
+                        <IconChevronsRight className={'size-4'} />
                     </Button>
                 </div>
             </div>

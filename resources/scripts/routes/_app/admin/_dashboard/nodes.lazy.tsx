@@ -1,49 +1,76 @@
+import usePagination from '@/hooks/use-pagination.ts'
 import { Node } from '@/types/node.ts'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
-import { useState } from 'react'
+import byteSize from 'byte-size'
 
 import useNodesSWR from '@/api/admin/nodes/use-nodes-swr.ts'
 
 import { DataTable } from '@/components/ui/DataTable'
+import {
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+} from '@/components/ui/DropdownMenu'
+import { actionsColumn } from '@/components/ui/Table/Actions.tsx'
 import { Heading } from '@/components/ui/Typography'
 
 export const Route = createLazyFileRoute('/_app/admin/_dashboard/nodes')({
     component: NodesIndex,
-
-    // @ts-expect-error
-    meta: () => [{ title: 'Nodes' }],
 })
 
 function NodesIndex() {
+    const pagination = usePagination()
     const { data } = useNodesSWR()
-    const [query, setQuery] = useState('')
 
     const columns: ColumnDef<Node>[] = [
         {
-            accessorKey: 'name',
             header: 'Name',
+            accessorKey: 'name',
+            enableHiding: false,
+            meta: {
+                skeletonWidth: '5rem',
+            },
         },
         {
-            accessorKey: 'fqdn',
             header: 'FQDN',
+            accessorKey: 'fqdn',
+            meta: {
+                skeletonWidth: '7rem',
+            },
         },
-    ]
+        {
+            header: 'Memory',
+            accessorKey: 'memory',
+            meta: {
+                skeletonWidth: '1rem',
+            },
+            cell: ({ cell }) => {
+                const memory = byteSize(cell.getValue<number>(), {
+                    units: 'iec',
+                })
 
-    console.log(query)
+                return `${memory.value} ${memory.unit}`
+            },
+        },
+        actionsColumn<Node>(data => (
+            <>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Delete</DropdownMenuItem>
+            </>
+        )),
+    ]
 
     return (
         <>
             <Heading>Nodes</Heading>
             <DataTable
-                toolbar
-                query={query}
-                setQuery={setQuery}
-                searchableColumn={'name'}
-                columns={columns}
-                data={data?.items ?? []}
                 paginated
-                showPageSizeOptions
+                searchable
+                toolbar
+                data={data}
+                columns={columns}
+                {...pagination}
             />
         </>
     )

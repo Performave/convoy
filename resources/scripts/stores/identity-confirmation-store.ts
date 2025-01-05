@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-
 const EXPIRY_TIME = 1000 * 60 * 5 // 5 minutes in milliseconds
 
 export enum ConfirmationType {
@@ -14,6 +13,7 @@ interface IdentityState {
     lastConfirmed: number | null // Stores the timestamp of the last confirmation
     confirmIdentity: (type: ConfirmationType) => void // Updates the timestamp
     isIdentityValid: () => boolean // Checks if confirmation is valid
+    reset: () => void // Resets the confirmation
 }
 
 export const useIdentityConfirmationStore = create(

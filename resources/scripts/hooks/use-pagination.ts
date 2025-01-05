@@ -1,12 +1,19 @@
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import useQueryState from '@/hooks/use-query-state.ts'
 
 const usePagination = () => {
-    const search = useSearch({ strict: false })
-    const navigate = useNavigate()
+    const [query, setQuery, debouncedQuery] = useQueryState('query', '')
+    const [page, setPage] = useQueryState('page', 1)
+    const [perPage, setPerPage] = useQueryState('perPage', 20)
 
-    // @ts-expect-error
-    const page = search.page ?? 1
-    return { page, setPage: (page: number) => navigate({ search: { page } }) }
+    return {
+        query,
+        debouncedQuery,
+        setQuery,
+        page,
+        setPage,
+        perPage,
+        setPerPage,
+    }
 }
 
 export default usePagination

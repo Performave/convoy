@@ -25,7 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/Select'
 
-const AvatarWithDropdown = () => {
+const Avatar = () => {
     const { theme, setTheme } = useTheme()
     const { data: user, mutate } = useUserSWR()
     const reset = useIdentityConfirmationStore(useShallow(state => state.reset))
@@ -56,7 +56,7 @@ const AvatarWithDropdown = () => {
                 </DropdownMenuLabel>
                 <p
                     className={
-                        'mb-3 -mt-1 truncate px-2 text-xs text-muted-foreground'
+                        '-mt-1 mb-3 truncate px-2 text-xs text-muted-foreground'
                     }
                 >
                     {user?.email}
@@ -83,4 +83,4 @@ const AvatarWithDropdown = () => {
     )
 }
 
-export default AvatarWithDropdown
+export default Avatar

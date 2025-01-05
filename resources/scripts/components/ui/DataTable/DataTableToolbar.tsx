@@ -1,72 +1,47 @@
-'use client'
-
+import { DataTableFilterField } from '@/types/data-table.ts'
 import { IconX } from '@tabler/icons-react'
 import { Table } from '@tanstack/react-table'
-import { ChangeEventHandler } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
-import DataTableFacetedFilter, {
-    FacetedFilterOption,
-} from './DataTableFacetedFilter.tsx'
+import DataTableFacetedFilter from './DataTableFacetedFilter.tsx'
 import DataTableViewOptions from './DataTableViewOptions'
-
-export interface FilterConfig {
-    columnId: string
-    title: string
-    options: FacetedFilterOption[]
-}
 
 interface DataTableToolbarProps<TData> {
     table: Table<TData>
-    filters?: FilterConfig[]
-    searchableColumn?: Extract<keyof TData, string>
-    globalSearch?: boolean
+    filterFields?: DataTableFilterField<TData>[]
+    searchable?: boolean
 }
 
 const DataTableToolbar = <TData,>({
     table,
-    filters = [],
-    searchableColumn,
-    globalSearch,
+    filterFields = [],
+    searchable,
 }: DataTableToolbarProps<TData>) => {
     const isFiltered = table.getState().columnFilters.length > 0
-    const value = globalSearch
-        ? (table.getState().globalFilter as string)
-        : searchableColumn
-          ? (table.getColumn(searchableColumn)?.getFilterValue() as string)
-          : null
-
-    const handleChange: ChangeEventHandler<HTMLInputElement> = e => {
-        if (globalSearch) {
-            table.setGlobalFilter(e.target.value)
-        } else if (searchableColumn) {
-            table.getColumn(searchableColumn)?.setFilterValue(e.target.value)
-        }
-    }
 
     return (
         <div className='flex items-center justify-between'>
             <div className='flex flex-1 items-center space-x-2'>
-                {(searchableColumn || globalSearch) && (
+                {searchable && (
                     <Input
                         placeholder='Search...'
-                        value={value ?? ''}
-                        onChange={handleChange}
+                        value={table.getState().globalFilter ?? ''}
+                        onChange={e => table.setGlobalFilter(e.target.value)}
                         className='h-8 w-[150px] bg-background lg:w-[250px]'
                     />
                 )}
-                {filters.map(({ columnId, title, options }) => {
-                    const column = table.getColumn(columnId)
+                {filterFields.map(({ id, label, options }) => {
+                    const column = table.getColumn(id)
                     if (!column) return null
 
                     return (
                         <DataTableFacetedFilter
-                            key={columnId}
+                            key={id}
                             column={column}
-                            title={title}
-                            options={options}
+                            title={label}
+                            options={options ?? []}
                         />
                     )
                 })}
