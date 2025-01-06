@@ -43,6 +43,7 @@ class LocationController
     public function store(LocationFormRequest $request)
     {
         $location = Location::create($request->validated());
+        $location->loadCount('nodes', 'servers');
 
         return fractal($location, new LocationTransformer)->respond();
     }
@@ -50,6 +51,7 @@ class LocationController
     public function update(LocationFormRequest $request, Location $location)
     {
         $location->update($request->validated());
+        $location->loadCount('nodes', 'servers');
 
         return fractal($location, new LocationTransformer)->respond();
     }

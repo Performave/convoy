@@ -1,6 +1,7 @@
 import createModalStore from '@/hooks/create-modal-store.ts'
 import usePagination from '@/hooks/use-pagination.ts'
 import { Location } from '@/types/location.ts'
+import { cn } from '@/utils'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { useShallow } from 'zustand/react/shallow'
@@ -12,6 +13,7 @@ import EditLocationModal from '@/components/interfaces/Admin/Location/EditLocati
 import ShowLocationModal from '@/components/interfaces/Admin/Location/ShowLocationModal.tsx'
 
 import { Badge } from '@/components/ui/Badge.tsx'
+import { buttonVariants } from '@/components/ui/Button'
 import { DataTable } from '@/components/ui/DataTable'
 import {
     DropdownMenuItem,
@@ -48,7 +50,10 @@ function LocationsIndex() {
                 skeletonWidth: '5rem',
             },
             cell: ({ cell }) => (
-                <button onClick={() => openModal('show', cell.row.original)}>
+                <button
+                    className={cn(buttonVariants({ variant: 'link' }), 'px-0')}
+                    onClick={() => openModal('show', cell.row.original)}
+                >
                     {cell.getValue<string>()}
                 </button>
             ),
@@ -72,6 +77,7 @@ function LocationsIndex() {
                     {cell.getValue<number>()}
                 </Badge>
             ),
+            maxSize: 40,
         },
         {
             header: 'Servers',
@@ -85,6 +91,7 @@ function LocationsIndex() {
                     {cell.getValue<number>()}
                 </Badge>
             ),
+            maxSize: 40,
         },
         actionsColumn<Location>(({ row }) => (
             <>
