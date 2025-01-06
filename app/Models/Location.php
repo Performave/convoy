@@ -10,6 +10,8 @@ class Location extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     /**
      * Fields that are not mass assignable.
      *
