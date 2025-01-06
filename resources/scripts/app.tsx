@@ -5,13 +5,15 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import NotFound from '@/components/ui/Navigation/NotFound.tsx'
+import ErrorComponent from '@/components/ui/Navigation/ErrorPages/ErrorComponent.tsx'
+import NotFoundComponent from '@/components/ui/Navigation/ErrorPages/NotFoundComponent.tsx'
 
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({
     routeTree,
-    defaultNotFoundComponent: NotFound,
+    defaultNotFoundComponent: NotFoundComponent,
+    defaultErrorComponent: ErrorComponent,
 })
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

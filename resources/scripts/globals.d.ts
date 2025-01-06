@@ -13,6 +13,6 @@ declare module '@tanstack/react-router' {
 declare module '@tanstack/react-table' {
     interface ColumnMeta<TData extends RowData, TValue> {
         skeletonWidth?: string
-        align: 'left' | 'center' | 'right'
+        align?: 'left' | 'center' | 'right'
     }
 }

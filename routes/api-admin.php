@@ -17,6 +17,7 @@ Route::prefix('/locations')->group(function () {
     Route::post('/', [Admin\LocationController::class, 'store']);
 
     Route::prefix('/{location}')->group(function () {
+        Route::get('/nodes', [Admin\LocationController::class, 'showAttachedNodes']);
         Route::put('/', [Admin\LocationController::class, 'update']);
         Route::delete('/', [Admin\LocationController::class, 'destroy']);
     });
@@ -48,7 +49,7 @@ Route::prefix('/nodes')->group(function () {
         |
         */
         Route::resource('/isos', Admin\Nodes\IsoController::class)
-             ->only(['index', 'store', 'update', 'destroy']);
+            ->only(['index', 'store', 'update', 'destroy']);
 
         /*
         |--------------------------------------------------------------------------
@@ -109,7 +110,7 @@ Route::prefix('/nodes')->group(function () {
                     'templates',
                     Admin\Nodes\TemplateController::class,
                 )
-                     ->only(['index', 'store', 'update', 'destroy']);
+                    ->only(['index', 'store', 'update', 'destroy']);
             });
         });
 
@@ -152,13 +153,13 @@ Route::prefix('/servers')->group(function () {
 
     Route::prefix('/{server}')->middleware(ValidateServerStatusMiddleware::class)->group(function () {
         Route::get('/', [Admin\ServerController::class, 'show'])
-             ->withoutMiddleware(
-                 ValidateServerStatusMiddleware::class,
-             );
+            ->withoutMiddleware(
+                ValidateServerStatusMiddleware::class,
+            );
         Route::patch('/', [Admin\ServerController::class, 'update'])
-             ->withoutMiddleware(
-                 ValidateServerStatusMiddleware::class,
-             );
+            ->withoutMiddleware(
+                ValidateServerStatusMiddleware::class,
+            );
         Route::delete('/', [Admin\ServerController::class, 'destroy']);
 
         Route::prefix('/settings')->group(function () {
@@ -246,7 +247,7 @@ Route::prefix('/address-pools')->group(function () {
 |
 */
 Route::resource('users', Admin\UserController::class)
-     ->only(['index', 'show', 'store', 'update', 'destroy']);
+    ->only(['index', 'show', 'store', 'update', 'destroy']);
 
 /*
 |--------------------------------------------------------------------------
@@ -289,4 +290,4 @@ Route::prefix('/coterms')->group(function () {
 |
 */
 Route::resource('tokens', Admin\TokenController::class)
-     ->only(['index', 'store', 'destroy']);
+    ->only(['index', 'store', 'destroy']);

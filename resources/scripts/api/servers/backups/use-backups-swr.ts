@@ -4,11 +4,10 @@ import useSWR from 'swr'
 
 import getBackups from '@/api/servers/backups/getBackups.ts'
 
-
 const getKey = (
     uuid: string,
     params?: QueryBuilderParams<'completed_at' | 'created_at'>
-) => ['backups', uuid, params]
+) => ['server.backups', uuid, params]
 
 const useBackupsSWR = (
     uuid?: string,

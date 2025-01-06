@@ -1,5 +1,10 @@
 import useTitle from '@/hooks/use-title.ts'
-import { IconHome } from '@tabler/icons-react'
+import {
+    IconBoxMargin,
+    IconHome,
+    IconMapPin,
+    IconServer,
+} from '@tabler/icons-react'
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 import AppLayout from '@/components/layouts/AppLayout.tsx'
@@ -26,5 +31,28 @@ const routes: RouteDef[] = [
         icon: IconHome,
         label: 'Dashboard',
         path: '/admin',
+        activeOptions: {
+            exact: true,
+        },
+    },
+    {
+        icon: IconMapPin,
+        label: 'Locations',
+        path: '/admin/locations',
+    },
+    {
+        icon: IconServer,
+        label: 'Nodes',
+        path: '/admin/nodes',
+    },
+    {
+        icon: IconServer,
+        label: 'Servers',
+        path: '/admin/servers',
+    },
+    {
+        icon: IconBoxMargin,
+        label: 'Templates',
+        path: '/admin/templates',
     },
 ]

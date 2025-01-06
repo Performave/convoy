@@ -1,9 +1,15 @@
+import createModalStore from '@/hooks/create-modal-store.ts'
 import usePagination from '@/hooks/use-pagination.ts'
 import { Location } from '@/types/location.ts'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
+import { useShallow } from 'zustand/react/shallow'
 
 import useLocationsSWR from '@/api/admin/locations/use-locations-swr.ts'
+
+import DeleteLocationModal from '@/components/interfaces/Admin/Location/DeleteLocationModal.tsx'
+import EditLocationModal from '@/components/interfaces/Admin/Location/EditLocationModal.tsx'
+import ShowLocationModal from '@/components/interfaces/Admin/Location/ShowLocationModal.tsx'
 
 import { Badge } from '@/components/ui/Badge.tsx'
 import { DataTable } from '@/components/ui/DataTable'
@@ -18,9 +24,20 @@ export const Route = createLazyFileRoute('/_app/admin/_dashboard/locations')({
     component: LocationsIndex,
 })
 
+export const useLocationsModalStore = createModalStore<
+    Location,
+    'show' | 'edit' | 'delete'
+>()
+
 function LocationsIndex() {
+    const openModal = useLocationsModalStore(
+        useShallow(state => state.openModal)
+    )
     const pagination = usePagination()
-    const { data } = useLocationsSWR(pagination.debouncedQuery, pagination.page)
+    const { data, mutate } = useLocationsSWR(
+        pagination.debouncedQuery,
+        pagination.page
+    )
 
     const columns: ColumnDef<Location>[] = [
         {
@@ -30,6 +47,11 @@ function LocationsIndex() {
             meta: {
                 skeletonWidth: '5rem',
             },
+            cell: ({ cell }) => (
+                <button onClick={() => openModal('show', cell.row.original)}>
+                    {cell.getValue<string>()}
+                </button>
+            ),
         },
         {
             header: 'Description',
@@ -64,11 +86,19 @@ function LocationsIndex() {
                 </Badge>
             ),
         },
-        actionsColumn<Location>(_ctx => (
+        actionsColumn<Location>(({ row }) => (
             <>
-                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => openModal('edit', row.original)}
+                >
+                    Edit
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => openModal('delete', row.original)}
+                >
+                    Delete
+                </DropdownMenuItem>
             </>
         )),
     ]
@@ -84,6 +114,9 @@ function LocationsIndex() {
                 toolbar
                 {...pagination}
             />
+            <ShowLocationModal />
+            <EditLocationModal mutate={mutate} />
+            <DeleteLocationModal mutate={mutate} />
         </>
     )
 }

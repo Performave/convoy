@@ -8,7 +8,6 @@ import ServerCard from '@/components/interfaces/Client/Dashboard/ServerCard.tsx'
 import LengthAwarePaginator from '@/components/ui/Pagination/LengthAwarePaginator.tsx'
 import { Heading } from '@/components/ui/Typography'
 
-
 export const Route = createLazyFileRoute('/_app/_dashboard/')({
     component: Dashboard,
 })
@@ -16,7 +15,7 @@ export const Route = createLazyFileRoute('/_app/_dashboard/')({
 function Dashboard() {
     const { page, setPage } = usePagination()
     const { data } = useServersSWR(page)
-
+    
     return (
         <>
             <Heading>My Servers</Heading>

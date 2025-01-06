@@ -15,6 +15,7 @@ function useQueryState<T>(key: string, defaultValue: T, debounceDelay = 300) {
 
     useEffect(() => {
         navigate({
+            replace: true,
             // @ts-expect-error
             search: prev => {
                 // Clear from URL if value is default

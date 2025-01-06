@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\LocationFormRequest;
 use App\Models\Filters\FiltersLocationWildcard;
 use App\Models\Location;
 use App\Transformers\Admin\LocationTransformer;
+use App\Transformers\Admin\NodeTransformer;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -17,7 +18,7 @@ class LocationController
     {
         $locations = QueryBuilder::for(Location::query())
             ->withCount(['nodes', 'servers'])
-            ->defaultSort('-id')
+            ->defaultSort('short_code')
             // @phpstan-ignore-next-line
             ->allowedFilters(
                 ['short_code', AllowedFilter::custom('*', new FiltersLocationWildcard)],
@@ -27,6 +28,16 @@ class LocationController
             );
 
         return fractal($locations, new LocationTransformer)->respond();
+    }
+
+    public function showAttachedNodes(Location $location)
+    {
+        $nodes = $location->nodes()
+            ->withCount('servers')
+            ->orderBy('name')
+            ->get();
+
+        return fractal($nodes, new NodeTransformer)->respond();
     }
 
     public function store(LocationFormRequest $request)
