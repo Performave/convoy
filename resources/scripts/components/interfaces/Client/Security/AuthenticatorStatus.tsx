@@ -1,4 +1,3 @@
-import { Skeleton } from '@mantine/core'
 import { IconAsteriskSimple } from '@tabler/icons-react'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -8,7 +7,7 @@ import { useAuthenticatorModalStore } from '@/components/interfaces/Client/Secur
 
 import { Button } from '@/components/ui/Button'
 import { SimpleEmptyState } from '@/components/ui/EmptyStates'
-
+import Skeleton from '@/components/ui/Skeleton.tsx'
 
 const AuthenticatorStatus = () => {
     const { data: isEnabled, isLoading } = useIsAuthenticatorEnabledSWR()
